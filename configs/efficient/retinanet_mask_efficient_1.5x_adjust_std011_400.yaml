@@ -1,6 +1,6 @@
 MODEL:
   META_ARCHITECTURE: "EfficientDet"
-  WEIGHT: "catalog://ImageNetPretrained/MSRA/R-101"
+  WEIGHT: "../efficientdet-d0.pth"
   RPN_ONLY: True
   BACKBONE:
     CONV_BODY: "EfficientNet"

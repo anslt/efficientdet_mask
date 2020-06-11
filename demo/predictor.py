@@ -111,9 +111,9 @@ class COCODemo(object):
         self.min_image_size = min_image_size
 
         
-        #TODO: need to fix the checkpoint
-        #checkpointer = DetectronCheckpointer(cfg, self.model)
-        #_ = checkpointer.load(cfg.MODEL.WEIGHT)
+        # fix the checkpoint
+        checkpointer = DetectronCheckpointer(cfg, self.model)
+        _ = checkpointer.load(cfg.MODEL.WEIGHT)
 
         self.transforms = self.build_transform()
 

@@ -1,0 +1,22 @@
+ninja_required_version = 1.3
+cxx = c++
+
+cflags = -Wno-unused-result -Wsign-compare -Wunreachable-code -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I/Users/yuqiyun/miniconda3/include -arch x86_64 -I/Users/yuqiyun/miniconda3/include -arch x86_64 -I/Users/yuqiyun/Library/Mobile Documents/com~apple~CloudDocs/Files/Academic Materials/TUM/SS19:20/03 - AVDL2CV/Project/efficientdet_mask/maskrcnn_benchmark/csrc -I/Users/yuqiyun/miniconda3/lib/python3.7/site-packages/torch/include -I/Users/yuqiyun/miniconda3/lib/python3.7/site-packages/torch/include/torch/csrc/api/include -I/Users/yuqiyun/miniconda3/lib/python3.7/site-packages/torch/include/TH -I/Users/yuqiyun/miniconda3/lib/python3.7/site-packages/torch/include/THC -I/Users/yuqiyun/miniconda3/include/python3.7m -c
+post_cflags = -DTORCH_API_INCLUDE_EXTENSION_H -DTORCH_EXTENSION_NAME=_C -D_GLIBCXX_USE_CXX11_ABI=0 -std=c++14
+ldflags = 
+
+rule compile
+  command = $cxx -MMD -MF $out.d $cflags -c $in -o $out $post_cflags
+  depfile = $out.d
+  deps = gcc
+
+
+
+build /Users/yuqiyun/Library/Mobile Documents/com~apple~CloudDocs/Files/Academic Materials/TUM/SS19:20/03 - AVDL2CV/Project/efficientdet_mask/build/temp.macosx-10.9-x86_64-3.7/Users/yuqiyun/Library/Mobile Documents/com~apple~CloudDocs/Files/Academic Materials/TUM/SS19:20/03 - AVDL2CV/Project/efficientdet_mask/maskrcnn_benchmark/csrc/vision.o: compile /Users/yuqiyun/Library/Mobile$ Documents/com~apple~CloudDocs/Files/Academic$ Materials/TUM/SS19:20/03$ -$ AVDL2CV/Project/efficientdet_mask/maskrcnn_benchmark/csrc/vision.cpp
+build /Users/yuqiyun/Library/Mobile Documents/com~apple~CloudDocs/Files/Academic Materials/TUM/SS19:20/03 - AVDL2CV/Project/efficientdet_mask/build/temp.macosx-10.9-x86_64-3.7/Users/yuqiyun/Library/Mobile Documents/com~apple~CloudDocs/Files/Academic Materials/TUM/SS19:20/03 - AVDL2CV/Project/efficientdet_mask/maskrcnn_benchmark/csrc/cpu/ROIAlign_cpu.o: compile /Users/yuqiyun/Library/Mobile$ Documents/com~apple~CloudDocs/Files/Academic$ Materials/TUM/SS19:20/03$ -$ AVDL2CV/Project/efficientdet_mask/maskrcnn_benchmark/csrc/cpu/ROIAlign_cpu.cpp
+build /Users/yuqiyun/Library/Mobile Documents/com~apple~CloudDocs/Files/Academic Materials/TUM/SS19:20/03 - AVDL2CV/Project/efficientdet_mask/build/temp.macosx-10.9-x86_64-3.7/Users/yuqiyun/Library/Mobile Documents/com~apple~CloudDocs/Files/Academic Materials/TUM/SS19:20/03 - AVDL2CV/Project/efficientdet_mask/maskrcnn_benchmark/csrc/cpu/nms_cpu.o: compile /Users/yuqiyun/Library/Mobile$ Documents/com~apple~CloudDocs/Files/Academic$ Materials/TUM/SS19:20/03$ -$ AVDL2CV/Project/efficientdet_mask/maskrcnn_benchmark/csrc/cpu/nms_cpu.cpp
+
+
+
+
+

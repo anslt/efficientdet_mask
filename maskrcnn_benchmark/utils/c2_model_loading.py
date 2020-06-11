@@ -136,7 +136,7 @@ _C2_STAGE_NAMES = {
 }
 
 def load_c2_format(cfg, f):
-    # TODO make it support other architectures
+    # this function is not use if the format is not .pkl
     state_dict = _load_c2_pickled_weights(f)
     conv_body = cfg.MODEL.BACKBONE.CONV_BODY
     arch = conv_body.replace("-C4", "").replace("-FPN", "")
