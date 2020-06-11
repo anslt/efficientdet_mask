@@ -33,13 +33,12 @@ def reduce_loss_dict(loss_dict):
             all_losses /= world_size
         reduced_losses = {k: v for k, v in zip(loss_names, all_losses)}
     return reduced_losses
-
 def freeze_backbone(m):
     classname = m.__class__.__name__
-        for ntl in ['EfficientNet', 'BiFPN']:
-            if ntl in classname:
-                for param in m.parameters():
-                    param.requires_grad = False
+    for ntl in ['EfficientNet', 'BiFPN']:
+        if ntl in classname:
+            for param in m.parameters():
+                param.requires_grad = False
 
 def do_train(
     model,
