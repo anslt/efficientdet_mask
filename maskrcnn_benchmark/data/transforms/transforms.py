@@ -5,7 +5,6 @@ import torch
 import torchvision
 from torchvision.transforms import functional as F
 
-
 class Compose(object):
     def __init__(self, transforms):
         self.transforms = transforms
@@ -23,11 +22,14 @@ class Compose(object):
         format_string += "\n)"
         return format_string
 
-
 class Resize(object):
-    def __init__(self, min_size, max_size):
-        self.min_size = min_size
-        self.max_size = max_size
+    def __init__(self,min_size, max_size):
+        self.new_h = min_size
+        self.new_w = max_size
+        #self.h = h
+        #self.w = w
+        #if interp is None:
+        #    interp = Image.BILINEAR
 
     # modified from torchvision to add support for max size
     def get_size(self, image_size):
@@ -35,6 +37,10 @@ class Resize(object):
         size = self.min_size
         max_size = self.max_size
         if max_size is not None:
+            
+            #TODO: need to modify the transform
+            return (size, size)
+
             min_original_size = float(min((w, h)))
             max_original_size = float(max((w, h)))
             if max_original_size / min_original_size * size > max_size:
@@ -49,12 +55,13 @@ class Resize(object):
         else:
             oh = size
             ow = int(size * w / h)
-
         return (oh, ow)
 
-    def __call__(self, image, target):
-        size = self.get_size(image.size)
-        image = F.resize(image, size)
+    def __call__(self, image, target=None):
+        w, h = image.size
+        image = F.resize(image, (self.new_h, self.new_w))
+        if target is None:
+            return image
         target = target.resize(image.size)
         return image, target
 
@@ -99,3 +106,4 @@ class Normalize(object):
             image = image[[2, 1, 0]] * 255
         image = F.normalize(image, mean=self.mean, std=self.std)
         return image, target
+
