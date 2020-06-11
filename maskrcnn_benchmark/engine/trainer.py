@@ -33,6 +33,7 @@ def reduce_loss_dict(loss_dict):
             all_losses /= world_size
         reduced_losses = {k: v for k, v in zip(loss_names, all_losses)}
     return reduced_losses
+
 def freeze_backbone(m):
     classname = m.__class__.__name__
     for ntl in ['EfficientNet', 'BiFPN']:
@@ -60,7 +61,7 @@ def do_train(
 
     if head_only:
         model.apply(freeze_backbone)
-        print(Already freeze backbone)
+        print("Already freeze backbone")
 
     model.train()
     start_training_time = time.time()
@@ -114,10 +115,10 @@ def do_train(
                         memory=torch.cuda.max_memory_allocated() / 1024.0 / 1024.0,
                     )
                 )
-            if iteration % checkpoint_period == 0 and iteration > 0:
-                checkpointer.save("model_{:07d}".format(iteration+1), **arguments)
-        except KeyboardInterrupt:
-            checkpointer.save("model_Interrupt", **arguments)
+        if iteration % checkpoint_period == 0 and iteration > 0:
+            checkpointer.save("model_{:07d}".format(iteration+1), **arguments)
+    except KeyboardInterrupt:
+        checkpointer.save("model_Interrupt", **arguments)
 
     checkpointer.save("model_{:07d}".format(iteration), **arguments)
     total_training_time = time.time() - start_training_time
