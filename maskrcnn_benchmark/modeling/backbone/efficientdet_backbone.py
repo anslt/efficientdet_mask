@@ -14,7 +14,7 @@ class EfficientDetBackbone(nn.Module):
         super(EfficientDetBackbone, self).__init__()
         compound_coef = cfg.EFFICIENTNET.COEF
         load_weights = cfg.EFFICIENTNET.LOAD_WEIGHTS
-        
+
         #TODO: fix number of classes
         num_classes = 80
 

@@ -9,6 +9,8 @@ from .anchor_generator import make_anchor_generator_retinanet
 from .retinanet_infer import  make_retinanet_postprocessor
 from .retinanet_detail_infer import  make_retinanet_detail_postprocessor
 
+import logging
+
 
 class RetinaNetHead(torch.nn.Module):
     """
@@ -103,6 +105,7 @@ class RetinaNetModule(torch.nn.Module):
     def __init__(self, cfg):
         super(RetinaNetModule, self).__init__()
 
+        self.logger = logging.getLogger("maskrcnn_benchmark.trainer")
         self.cfg = cfg.clone()
 
         anchor_generator = make_anchor_generator_retinanet(cfg)
@@ -145,7 +148,9 @@ class RetinaNetModule(torch.nn.Module):
         """
         box_cls, box_regression = self.head(features)
         anchors = self.anchor_generator(images, features)
- 
+
+        self.logger.info(anchors)
+
         if self.training:
             return self._forward_train(anchors, box_cls, box_regression, targets)
         else:
