@@ -30,10 +30,10 @@ class COCODataset(torchvision.datasets.coco.CocoDetection):
             v: k for k, v in self.json_category_id_to_contiguous_id.items()
         }
         self.id_to_img_map = {k: v for k, v in enumerate(self.ids)}
-        self.transforms = transforms
+        self._transforms = transforms
 
     def __getitem__(self, idx):
-        img, anno = super(COCODataset, self).__getitem__(idx)
+        img, anno = super(COCODataset, self).__getitem__(idx) #applied transforms
 
         # filter crowd annotations
         # TODO might be better to add an extra field
@@ -54,8 +54,8 @@ class COCODataset(torchvision.datasets.coco.CocoDetection):
 
         target = target.clip_to_image(remove_empty=True)
 
-        if self.transforms is not None:
-            img, target = self.transforms(img, target)
+        if self._transforms is not None:
+            img, target = self._transforms(img, target)
 
         return img, target, idx
 
