@@ -5,8 +5,7 @@ import os
 
 
 class DatasetCatalog(object):
-    # DATA_DIR = "datasets"
-    DATA_DIR = "../datasets"
+    DATA_DIR = "datasets"
 
     DATASETS = {
         "coco_test-dev": (
