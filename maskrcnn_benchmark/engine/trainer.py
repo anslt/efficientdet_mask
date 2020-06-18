@@ -120,7 +120,7 @@ def do_train(
                 )
             )
             if iteration % checkpoint_period == 0 and iteration > 0:
-                write.export_scalars_to_json("./all_scalars_{:07d}.json".format(iteration+1))
+                #write.export_scalars_to_json("./all_scalars_{:07d}.json".format(iteration+1))
                 checkpointer.save("model_{:07d}".format(iteration+1), **arguments)
     except KeyboardInterrupt:
         checkpointer.save("model_Interrupt", **arguments)
