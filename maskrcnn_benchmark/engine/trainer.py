@@ -8,7 +8,7 @@ import torch.distributed as dist
 
 from maskrcnn_benchmark.utils.comm import get_world_size, get_rank
 from maskrcnn_benchmark.utils.metric_logger import MetricLogger
-
+from tensorboardX import SummaryWriter
 
 def reduce_loss_dict(loss_dict):
     """
@@ -57,7 +57,7 @@ def do_train(
     meters = MetricLogger(delimiter="  ")
     max_iter = len(data_loader)
     start_iter = arguments["iteration"]
-
+    write = SummaryWriter(checkpointer.save_dir)
 
     if head_only:
         model.apply(freeze_backbone)
@@ -95,7 +95,11 @@ def do_train(
 
             eta_seconds = meters.time.global_avg * (max_iter - iteration)
             eta_string = str(datetime.timedelta(seconds=int(eta_seconds)))
-
+            
+            write.add_scalar('loss',losses,iteration)
+            write.add_scalar('loss/cls',loss_dict["loss_retina_cls"],iteration)
+            write.add_scalar('loss/bbox',loss_dict["loss_retina_reg"],iteration)
+            write.add_scalar('loss/mask',loss_dict["loss_mask"],iteration)
             #if iteration % 20 == 0 or iteration == (max_iter - 1):
             if iteration % 50 == 0 or iteration == (max_iter - 1):
                 logger.info(
@@ -116,6 +120,7 @@ def do_train(
                 )
             )
             if iteration % checkpoint_period == 0 and iteration > 0:
+                write.export_scalars_to_json("./all_scalars_{:07d}.json".format(iteration+1))
                 checkpointer.save("model_{:07d}".format(iteration+1), **arguments)
     except KeyboardInterrupt:
         checkpointer.save("model_Interrupt", **arguments)
