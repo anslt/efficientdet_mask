@@ -14,6 +14,7 @@ from maskrcnn_benchmark.modeling.roi_heads.mask_head.mask_head import build_roi_
 #from maskrcnn_benchmark.modeling.roi_heads.sparsemask_head.mask_head import build_sparse_mask_head
 from maskrcnn_benchmark.structures.boxlist_ops import cat_boxlist
 import copy
+import collections
 
 class EfficientDet(nn.Module):
     """
@@ -34,6 +35,16 @@ class EfficientDet(nn.Module):
             self.mask = build_roi_mask_head(cfg)
         #if cfg.MODEL.SPARSE_MASK_ON:
         #    self.mask = build_sparse_mask_head(cfg)
+        if cfg.EFFICIENTNET.LOAD_BACKBONE and len(cfg.EFFICIENTNET.LOAD_DIR) > 0:
+            weight_paths = cfg.EFFICIENTNET.LOAD_DIR + "efficientdet-d" + cfg.EFFICIENTNET.COFF + ".pth"
+            a = torch.load(weight_paths)
+            b = collections.OrderedDict()
+            for key in a.keys():
+                if key[:5] == "bifpn" or key[:8] == "backbone":
+                    b["body." + key] = a[key]
+            self.backbone.load_state_dict(b)
+
+
 
 
     def forward(self, images, targets=None):

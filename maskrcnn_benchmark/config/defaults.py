@@ -229,6 +229,8 @@ _C.MODEL.RESNETS.STEM_OUT_CHANNELS = 64
 _C.EFFICIENTNET = CN()
 _C.EFFICIENTNET.COEF = 0
 _C.EFFICIENTNET.LOAD_WEIGHTS = False
+_C.EFFICIENTNET.LOAD_BACKBONE = False
+_C.EFFICIENTNET.LOAD_DIR = ""
 
 # ---------------------------------------------------------------------------- #
 # RetinaNet Options (Follow the Detectron version)

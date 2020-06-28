@@ -26,7 +26,7 @@ from maskrcnn_benchmark.utils.logger import setup_logger
 from maskrcnn_benchmark.utils.miscellaneous import mkdir
 
 
-def train(cfg, local_rank, distributed,head_only):
+def train(cfg, local_rank, distributed, head_only):
     model = build_detection_model(cfg)
     device = torch.device(cfg.MODEL.DEVICE)
     model.to(device)
@@ -131,6 +131,41 @@ def main():
     )
 
     parser.add_argument(
+        '-o','--output_dir',
+        help="output dictionary",
+        type=str,
+        default="/content/drive/My Drive/res"
+    )
+
+    parser.add_argument(
+        '-lr', '--load_dir',
+        help="load weight dictionary",
+        type=str,
+        default="/content/drive/My Drive/efficientdet_weights"
+    )
+
+    parser.add_argument(
+        '-lw', '--load_weights',
+        help="load weight or not",
+        type=bool,
+        default=False
+    )
+
+    parser.add_argument(
+        '-lb', '--load_backbone',
+        help="load weight or not",
+        type=bool,
+        default=False
+    )
+
+    parser.add_argument(
+        '-c', '--det_class',
+        help="type of efficient",
+        type=int,
+        default=0
+    )
+
+    parser.add_argument(
         "opts",
         help="Modify config options using the command-line",
         default=None,
@@ -150,9 +185,15 @@ def main():
 
     cfg.merge_from_file(args.config_file)
     cfg.merge_from_list(args.opts)
+    cfg.merge_from_list(["OUTPUT_DIR", args.output_dir])
+    cfg.merge_from_list(["EFFICIENTNET.LOAD_DIR", args.load_dir])
+    cfg.merge_from_file(["EFFICIENTNET.COEF", args.det_class])
+    cfg.merge_from_list(["EFFICIENTNET.LOAD_WEIGHTS", args.load_weights])
+    cfg.merge_from_list(["EFFICIENTNET.LOAD_BACKBONE", args.load_backbone])
+
     cfg.freeze()
 
-    output_dir = cfg.OUTPUT_DIR
+    output_dir = args.o
     if output_dir:
         mkdir(output_dir)
 
