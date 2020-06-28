@@ -164,6 +164,8 @@ def make_anchor_generator_retinanet(config):
     anchor_generator = AnchorGenerator(
         tuple(new_anchor_sizes), aspect_ratios, anchor_strides, straddle_thresh
     )
+    print(anchor_size)
+    print(tuple(new_anchor_sizes))
     return anchor_generator
 
 # Copyright (c) 2017-present, Facebook, Inc.

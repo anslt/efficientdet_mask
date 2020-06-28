@@ -36,7 +36,7 @@ class EfficientDet(nn.Module):
         #if cfg.MODEL.SPARSE_MASK_ON:
         #    self.mask = build_sparse_mask_head(cfg)
         if cfg.EFFICIENTNET.LOAD_BACKBONE and len(cfg.EFFICIENTNET.LOAD_DIR) > 0:
-            weight_paths = cfg.EFFICIENTNET.LOAD_DIR + "efficientdet-d" + cfg.EFFICIENTNET.COFF + ".pth"
+            weight_paths = cfg.EFFICIENTNET.LOAD_DIR + "/efficientdet-d" + str(cfg.EFFICIENTNET.COEF) + ".pth"
             a = torch.load(weight_paths)
             b = collections.OrderedDict()
             for key in a.keys():

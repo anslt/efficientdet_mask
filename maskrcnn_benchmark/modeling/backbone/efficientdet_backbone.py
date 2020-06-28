@@ -64,10 +64,19 @@ class EfficientDetBackbone(nn.Module):
     def forward(self, inputs):
         max_size = inputs.shape[-1]
 
-        _, p3, p4, p5 = self.backbone_net(inputs)
+        outputs = self.backbone_net(inputs)
+        _, p3, p4, p5 = outputs
 
+        #print("backbone")
+        #for out in outputs:
+        #    print(out.size())
         features = (p3, p4, p5)
         features = self.bifpn(features)
+
+        #print("features")
+        #for feat in features:
+        #    print(feat.size())
+
 
         #regression = self.regressor(features)
         #classification = self.classifier(features)

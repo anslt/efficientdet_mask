@@ -71,6 +71,7 @@ def train(cfg, local_rank, distributed, head_only):
         device,
         checkpoint_period,
         arguments,
+        cfg,
         head_only
     )
 
@@ -187,13 +188,13 @@ def main():
     cfg.merge_from_list(args.opts)
     cfg.merge_from_list(["OUTPUT_DIR", args.output_dir])
     cfg.merge_from_list(["EFFICIENTNET.LOAD_DIR", args.load_dir])
-    cfg.merge_from_file(["EFFICIENTNET.COEF", args.det_class])
+    cfg.merge_from_list(["EFFICIENTNET.COEF", args.det_class])
     cfg.merge_from_list(["EFFICIENTNET.LOAD_WEIGHTS", args.load_weights])
     cfg.merge_from_list(["EFFICIENTNET.LOAD_BACKBONE", args.load_backbone])
 
     cfg.freeze()
 
-    output_dir = args.o
+    output_dir = args.output_dir
     if output_dir:
         mkdir(output_dir)
 

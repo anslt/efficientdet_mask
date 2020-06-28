@@ -50,6 +50,7 @@ def do_train(
     device,
     checkpoint_period,
     arguments,
+    cfg,
     head_only
 ):
     logger = logging.getLogger("maskrcnn_benchmark.trainer")
@@ -99,7 +100,8 @@ def do_train(
             write.add_scalar('loss',losses,iteration)
             write.add_scalar('loss/cls',loss_dict["loss_retina_cls"],iteration)
             write.add_scalar('loss/bbox',loss_dict["loss_retina_reg"],iteration)
-            write.add_scalar('loss/mask',loss_dict["loss_mask"],iteration)
+            if cfg.MODEL.MASK_ON:
+                write.add_scalar('loss/mask',loss_dict["loss_mask"],iteration)
             #if iteration % 20 == 0 or iteration == (max_iter - 1):
             if iteration % 50 == 0 or iteration == (max_iter - 1):
                 logger.info(

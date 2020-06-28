@@ -6,7 +6,7 @@ import os
 
 class DatasetCatalog(object):
     # DATA_DIR = "datasets"
-    DATA_DIR = "../datasets"
+    DATA_DIR = "/content/efficientdet_mask/maskrcnn_benchmark/data/datasets"
 
     DATASETS = {
         "coco_test-dev": (
