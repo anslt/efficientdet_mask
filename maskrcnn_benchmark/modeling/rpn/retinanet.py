@@ -110,7 +110,8 @@ class RetinaNetModule(torch.nn.Module):
 
         anchor_generator = make_anchor_generator_retinanet(cfg)
         head = RetinaNetHead(cfg)
-        box_coder = BoxCoder(weights=(10., 10., 5., 5.))
+        #box_coder = BoxCoder(weights=(10., 10., 5., 5.))
+        box_coder = BoxCoder(weights=(1., 1., 1.,1.))
 
         if self.cfg.MODEL.SPARSE_MASK_ON:
             box_selector_test = make_retinanet_detail_postprocessor(
