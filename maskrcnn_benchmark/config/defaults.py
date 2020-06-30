@@ -231,6 +231,7 @@ _C.EFFICIENTNET.COEF = 0
 _C.EFFICIENTNET.LOAD_WEIGHTS = False
 _C.EFFICIENTNET.LOAD_BACKBONE = False
 _C.EFFICIENTNET.LOAD_DIR = ""
+_C.EFFICIENTNET.RETINANET.FEW_ANCHOR=False
 
 # ---------------------------------------------------------------------------- #
 # RetinaNet Options (Follow the Detectron version)
@@ -310,6 +311,8 @@ _C.RETINANET.NUM_MASKS_TEST = 50
 
 _C.RETINANET.LOW_QUALITY_MATCHES = True
 _C.RETINANET.LOW_QUALITY_THRESHOLD = 0.0
+
+_C.RETINANET.FEW_ANCHOR = False
 
 # ---------------------------------------------------------------------------- #
 # SparseMask Options (Follow the Detectron version)

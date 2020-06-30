@@ -58,7 +58,7 @@ def do_train(
     meters = MetricLogger(delimiter="  ")
     max_iter = len(data_loader)
     start_iter = arguments["iteration"]
-    write = SummaryWriter(checkpointer.save_dir)
+    #write = SummaryWriter(checkpointer.save_dir)
 
     if head_only:
         model.apply(freeze_backbone)
@@ -97,11 +97,11 @@ def do_train(
             eta_seconds = meters.time.global_avg * (max_iter - iteration)
             eta_string = str(datetime.timedelta(seconds=int(eta_seconds)))
             
-            write.add_scalar('loss',losses,iteration)
-            write.add_scalar('loss/cls',loss_dict["loss_retina_cls"],iteration)
-            write.add_scalar('loss/bbox',loss_dict["loss_retina_reg"],iteration)
-            if cfg.MODEL.MASK_ON:
-                write.add_scalar('loss/mask',loss_dict["loss_mask"],iteration)
+            #write.add_scalar('loss',losses,iteration)
+            #write.add_scalar('loss/cls',loss_dict["loss_retina_cls"],iteration)
+            #write.add_scalar('loss/bbox',loss_dict["loss_retina_reg"],iteration)
+            #if cfg.MODEL.MASK_ON:
+            #    write.add_scalar('loss/mask',loss_dict["loss_mask"],iteration)
             #if iteration % 20 == 0 or iteration == (max_iter - 1):
             if iteration % 50 == 0 or iteration == (max_iter - 1):
                 logger.info(

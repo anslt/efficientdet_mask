@@ -17,7 +17,7 @@ class RetinaNetHead(torch.nn.Module):
     Adds a RetinNet head with classification and regression heads
     """
 
-    def __init__(self, cfg):
+    def __init__(self, cfg, num_anch):
         """
         Arguments:
             in_channels (int): number of channels of the input feature
@@ -29,6 +29,9 @@ class RetinaNetHead(torch.nn.Module):
         in_channels = cfg.MODEL.BACKBONE.OUT_CHANNELS
         num_anchors = len(cfg.RETINANET.ASPECT_RATIOS) \
                         * cfg.RETINANET.SCALES_PER_OCTAVE
+
+        if cfg.RETINANET.FEW_ANCHOR:
+             num_anchors = num_anch
 
         cls_tower = []
         bbox_tower = []
@@ -109,7 +112,7 @@ class RetinaNetModule(torch.nn.Module):
         self.cfg = cfg.clone()
 
         anchor_generator = make_anchor_generator_retinanet(cfg)
-        head = RetinaNetHead(cfg)
+        head = RetinaNetHead(cfg, anchor_generator.num_anchors_per_location()[0])
         #box_coder = BoxCoder(weights=(10., 10., 5., 5.))
         box_coder = BoxCoder(weights=(1., 1., 1.,1.))
 
