@@ -130,9 +130,12 @@ class RetinaNetModule(torch.nn.Module):
             box_selector_train = make_retinanet_postprocessor(
                 cfg, 100, box_coder)
 
+        # TODO: change to Yet-Another-EfficientNet FocalLoss()
         loss_evaluator = make_retinanet_loss_evaluator(cfg, box_coder)
 
         self.compound_coef = cfg.EFFICIENTNET.COEF
+        self.fpn_num_filters = [64, 88, 112, 160, 224, 288, 384, 384]
+        self.fpn_cell_repeats = [3, 4, 5, 6, 7, 7, 8, 8]
         self.box_class_repeats = [3, 3, 3, 4, 4, 4, 5, 5]
         self.anchor_scale = [4., 4., 4., 4., 4., 4., 4., 5.]
         self.aspect_ratios = [(1.0, 1.0), (1.4, 0.7), (0.7, 1.4)]
@@ -173,13 +176,13 @@ class RetinaNetModule(torch.nn.Module):
         """
         # TODO： convert between format
         print("--------------FROM YET ANOTHER---------------")
-        box_regression = self.regressor(features) # Should be list of feature maps
-        box_cls = self.classifier(features) # Should be list of feature maps
-        anchors = self.anchors(images, images.dtype)
+        box_regression = self.regressor(features) # a list of feature maps
+        box_cls = self.classifier(features) # a list of feature maps
+        anchors = self.anchors(images, images.dtype) # a numpy array with shape [N, 4], which stacks anchors on all feature levels.
         print(box_cls, box_regression, anchors)
         print("--------------FROM RETINAMASK---------------")
-        box_cls, box_regression = self.head(features)
-        anchors = self.anchor_generator(images, features)
+        box_cls, box_regression = self.head(features)#  torch.cat(list of feature maps, dim=1)
+        anchors = self.anchor_generator(images, features) # [[BoxList]] a list of list of BoxList
         print(box_cls, box_regression, anchors)
 
         if self.training:
@@ -189,9 +192,14 @@ class RetinaNetModule(torch.nn.Module):
 
     def _forward_train(self, anchors, box_cls, box_regression, targets):
         # TODO: change the loss to Yet-Another-EfficientDet if necessay
+        # TODO: target format may not be compatible, what are "annotations, imgs and obj_list?
+        # loss_box_cls, loss_box_reg = self.criterion(
+        #     box_cls, box_regression, anchors, annotations, imgs=imgs, obj_list=obj_list
+        # )
         loss_box_cls, loss_box_reg = self.loss_evaluator(
             anchors, box_cls, box_regression, targets
         )
+
         losses = {
             "loss_retina_cls": loss_box_cls,
             "loss_retina_reg": loss_box_reg,
