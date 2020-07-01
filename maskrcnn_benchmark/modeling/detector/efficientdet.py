@@ -10,12 +10,10 @@ from maskrcnn_benchmark.structures.image_list import to_image_list
 
 from ..backbone import build_backbone
 from ..rpn.retinanet import build_retinanet
-from ..rpn.rpn import build_rpn
 from maskrcnn_benchmark.modeling.roi_heads.mask_head.mask_head import build_roi_mask_head
 #from maskrcnn_benchmark.modeling.roi_heads.sparsemask_head.mask_head import build_sparse_mask_head
 from maskrcnn_benchmark.structures.boxlist_ops import cat_boxlist
 import copy
-import collections
 
 class EfficientDet(nn.Module):
     """
@@ -30,28 +28,12 @@ class EfficientDet(nn.Module):
         super(EfficientDet, self).__init__()
         self.cfg = copy.deepcopy(cfg)
         self.backbone = build_backbone(cfg)
-        self.retinanet_on = cfg.RETINANET.RETINANET_ON
-        if cfg.RETINANET.RETINANET_ON:
-            self.rpn = build_retinanet(cfg)
-            self.mask = None
-            if cfg.MODEL.MASK_ON:
-                self.mask = build_roi_mask_head(cfg)
-        else:
-            self.rpn = build_rpn(cfg)
-            self.roi_heads = build_roi_heads(cfg)
-        
+        self.rpn = build_retinanet(cfg)
+        self.mask = None
+        if cfg.MODEL.MASK_ON:
+            self.mask = build_roi_mask_head(cfg)
         #if cfg.MODEL.SPARSE_MASK_ON:
         #    self.mask = build_sparse_mask_head(cfg)
-        if cfg.EFFICIENTNET.LOAD_BACKBONE and len(cfg.EFFICIENTNET.LOAD_DIR) > 0:
-            weight_paths = cfg.EFFICIENTNET.LOAD_DIR + "/efficientdet-d" + str(cfg.EFFICIENTNET.COEF) + ".pth"
-            a = torch.load(weight_paths)
-            b = collections.OrderedDict()
-            for key in a.keys():
-                if key[:5] == "bifpn" or key[:8] == "backbone":
-                    b["body." + key] = a[key]
-            self.backbone.load_state_dict(b)
-
-
 
 
     def forward(self, images, targets=None):
@@ -59,93 +41,69 @@ class EfficientDet(nn.Module):
         Arguments:
             images (list[Tensor] or ImageList): images to be processed
             targets (list[BoxList]): ground-truth boxes present in the image (optional)
-
         Returns:
             result (list[BoxList] or dict[Tensor]): the output from the model.
                 During training, it returns a dict[Tensor] which contains the losses.
                 During testing, it returns list[BoxList] contains additional fields
                 like `scores`, `labels` and `mask` (for Mask R-CNN models).
-
         """
         if self.training and targets is None:
             raise ValueError("In training mode, targets should be passed")
         images = to_image_list(images)
         features = self.backbone(images.tensors)
-        
-        # Use retinanet rpn
-        if self.retinanet_on:
-        # Retina RPN Output
-            rpn_features = features
-            if self.cfg.RETINANET.BACKBONE == "p2p7":
-                rpn_features = features[1:]
-            (anchors, detections), detector_losses = self.rpn(images, rpn_features, targets)
-            if self.training:
-                losses = {}
-                losses.update(detector_losses)
-                if self.mask:
-                    if self.cfg.MODEL.MASK_ON:
-                        # Padding the GT
-                        proposals = []
-                        for (image_detections, image_targets) in zip(
-                            detections, targets):
-                            merge_list = []
-                            if not isinstance(image_detections, list):
-                                merge_list.append(image_detections.copy_with_fields('labels'))
 
-                            if not isinstance(image_targets, list):
-                                merge_list.append(image_targets.copy_with_fields('labels'))
-
-                            if len(merge_list) == 1:
-                                proposals.append(merge_list[0])
-                            else:
-                                proposals.append(cat_boxlist(merge_list))
-                        x, result, mask_losses = self.mask(features, proposals, targets)
-                    elif self.cfg.MODEL.SPARSE_MASK_ON:
-                        x, result, mask_losses = self.mask(features, anchors, targets)
-
-                    losses.update(mask_losses)
-                return losses
-            else:
-                if self.mask:
+        #Retina RPN Output
+        rpn_features = features
+        if self.cfg.RETINANET.BACKBONE == "p2p7":
+            rpn_features = features[1:]
+        (anchors, detections), detector_losses = self.rpn(images, rpn_features, targets)
+        if self.training:
+            losses = {}
+            losses.update(detector_losses)
+            if self.mask:
+                if self.cfg.MODEL.MASK_ON:
+                    # Padding the GT
                     proposals = []
-                    for image_detections in detections:
-                        num_of_detections = image_detections.bbox.shape[0]
-                        if num_of_detections > self.cfg.RETINANET.NUM_MASKS_TEST > 0:
-                            cls_scores = image_detections.get_field("scores")
-                            image_thresh, _ = torch.kthvalue(
-                                cls_scores.cpu(), num_of_detections - \
-                                self.cfg.RETINANET.NUM_MASKS_TEST + 1
-                            )
-                            keep = cls_scores >= image_thresh.item()
-                            keep = torch.nonzero(keep).squeeze(1)
-                            image_detections = image_detections[keep]
+                    for (image_detections, image_targets) in zip(
+                        detections, targets):
+                        merge_list = []
+                        if not isinstance(image_detections, list):
+                            merge_list.append(image_detections.copy_with_fields('labels'))
 
-                        proposals.append(image_detections)
+                        if not isinstance(image_targets, list):
+                            merge_list.append(image_targets.copy_with_fields('labels'))
 
-                    if self.cfg.MODEL.SPARSE_MASK_ON:
-                        x, detections, mask_losses = self.mask(
-                            features, proposals, targets
-                        )
-                    else:
-                        x, detections, mask_losses = self.mask(features, proposals, targets)
-                return detections
+                        if len(merge_list) == 1:
+                            proposals.append(merge_list[0])
+                        else:
+                            proposals.append(cat_boxlist(merge_list))
+                    x, result, mask_losses = self.mask(features, proposals, targets)
+                elif self.cfg.MODEL.SPARSE_MASK_ON:
+                    x, result, mask_losses = self.mask(features, anchors, targets)
+
+                losses.update(mask_losses)
+            return losses
         else:
+            if self.mask:
+                proposals = []
+                for image_detections in detections:
+                    num_of_detections = image_detections.bbox.shape[0]
+                    if num_of_detections > self.cfg.RETINANET.NUM_MASKS_TEST > 0:
+                        cls_scores = image_detections.get_field("scores")
+                        image_thresh, _ = torch.kthvalue(
+                            cls_scores.cpu(), num_of_detections - \
+                            self.cfg.RETINANET.NUM_MASKS_TEST + 1
+                        )
+                        keep = cls_scores >= image_thresh.item()
+                        keep = torch.nonzero(keep).squeeze(1)
+                        image_detections = image_detections[keep]
 
-            features = self.backbone(images.tensors)
-            proposals, proposal_losses = self.rpn(images, features, targets)
-            if self.roi_heads:
-                x, result, detector_losses = self.roi_heads(features, proposals, targets)
-            else:
-                # RPN-only models don't have roi_heads
-                x = features
-                result = proposals
-                detector_losses = {}
+                    proposals.append(image_detections)
 
-            if self.training:
-                losses = {}
-                losses.update(detector_losses)
-                losses.update(proposal_losses)
-                return losses
-
-            return result
-
+                if self.cfg.MODEL.SPARSE_MASK_ON:
+                    x, detections, mask_losses = self.mask(
+                        features, proposals, targets
+                    )
+                else:
+                    x, detections, mask_losses = self.mask(features, proposals, targets)
+            return detections
