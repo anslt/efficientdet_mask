@@ -67,6 +67,9 @@ class AnchorGenerator(nn.Module):
         self.cell_anchors = BufferList(cell_anchors)
         self.straddle_thresh = straddle_thresh
 
+        #######################
+        self.anchor_new_generator = Anchors()
+
     def num_anchors_per_location(self):
         return [len(cell_anchors) for cell_anchors in self.cell_anchors]
 
@@ -130,7 +133,7 @@ class AnchorGenerator(nn.Module):
             print(len(a))
             print(a)
             a = a[0]
-
+        
 
         return anchors
 
@@ -183,13 +186,11 @@ def make_anchor_generator_retinanet(config):
     )
 
 
-    anchor_generator2 = Anchors()
-
     print("retina:anchor size:")
     print(anchor_sizes)
     print("retina:new anchor size:")
     print(tuple(new_anchor_sizes))
-    return anchor_generator, anchor_generator2
+    return anchor_generator
 
 # Copyright (c) 2017-present, Facebook, Inc.
 #
