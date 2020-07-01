@@ -123,6 +123,15 @@ class AnchorGenerator(nn.Module):
                 self.add_visibility_to(boxlist)
                 anchors_in_image.append(boxlist)
             anchors.append(anchors_in_image)
+
+
+
+        a = anchors
+        while type(a[0]) == "list":
+            print(len(a))
+            print(a)
+
+
         return anchors
 
 
@@ -173,15 +182,14 @@ def make_anchor_generator_retinanet(config):
         tuple(new_anchor_sizes), aspect_ratios, anchor_strides, straddle_thresh
     )
 
-    a = anchor_generator
-    while type(a[0]) == "list":
-        print(len(a))
+
+    anchor_generator2 = Anchors()
 
     print("retina:anchor size:")
     print(anchor_sizes)
     print("retina:new anchor size:")
     print(tuple(new_anchor_sizes))
-    return anchor_generator
+    return anchor_generator, anchor_generator2
 
 # Copyright (c) 2017-present, Facebook, Inc.
 #
