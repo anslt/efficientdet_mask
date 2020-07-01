@@ -172,6 +172,11 @@ def make_anchor_generator_retinanet(config):
     anchor_generator = AnchorGenerator(
         tuple(new_anchor_sizes), aspect_ratios, anchor_strides, straddle_thresh
     )
+
+    a = anchor_generator
+    while type(a[0]) == "list":
+        print(len(a))
+
     print("retina:anchor size:")
     print(anchor_sizes)
     print("retina:new anchor size:")
