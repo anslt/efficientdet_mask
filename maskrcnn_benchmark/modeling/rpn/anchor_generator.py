@@ -125,11 +125,11 @@ class AnchorGenerator(nn.Module):
             anchors.append(anchors_in_image)
 
 
-
         a = anchors
         while type(a[0]) == "list":
             print(len(a))
             print(a)
+            a = a[0]
 
 
         return anchors
