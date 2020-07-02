@@ -55,7 +55,7 @@ class EfficientDet(nn.Module):
 
         if targets is not None:
             np_targets = [np.concatenate((target.bbox.numpy(), target.get_field("labels").numpy()[:, np.newaxis]),
-                                         axis=1) for atarget in targets]
+                                         axis=1) for target in targets]
         #Retina RPN Output
         rpn_features = features
         if self.cfg.RETINANET.BACKBONE == "p2p7":
