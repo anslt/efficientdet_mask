@@ -245,8 +245,8 @@ class RetinaNetModule(torch.nn.Module):
         # print("---------------boxes (before formatting)--------------")
         # print(out)
         boxes = to_bbox_detection(images, out)
-        print("---------------boxes (after formating) --------------")
-        print(boxes)
+        # print("---------------boxes (after formating) --------------")
+        # print(boxes)
 
         '''
         if self.cfg.MODEL.RPN_ONLY:
