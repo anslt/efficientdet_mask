@@ -176,18 +176,18 @@ class RetinaNetModule(torch.nn.Module):
                 testing, it is an empty dict.
         """
         # TODO： convert between format
-        print("--------------FROM YET ANOTHER---------------")
+        # print("--------------FROM YET ANOTHER---------------")
         box_regression = self.regressor(features)
         box_cls = self.classifier(features) #  torch.cat(list of feature maps, dim=1)
-        print(box_cls.shape, box_regression.shape)
-        print(box_cls, box_regression)
+        # print(box_cls.shape, box_regression.shape)
+        # print(box_cls, box_regression)
         print("--------------FROM RETINAMASK---------------")
-        box_cls, box_regression = self.head(features)# a list of feature maps (tensors)
-        print(np.array(box_cls).shape, np.array(box_regression).shape)
-        print(box_cls, box_regression)
+        # box_cls, box_regression = self.head(features)# a list of feature maps (tensors)
+        # print(np.array(box_cls).shape, np.array(box_regression).shape)
+        # print(box_cls, box_regression)
 
         print("--------------FROM YET ANOTHER---------------")
-        anchors = self.anchors(images) # a numpy array with shape [N, 4], which stacks anchors on all feature levels.
+        anchors = self.anchors(images.tensors, images.tensors.dtype) # a numpy array with shape [N, 4], which stacks anchors on all feature levels.
         print(anchors)
         print("--------------FROM RETINAMASK---------------")
         anchors = self.anchor_generator(images, features) # [[BoxList]] a list of list of BoxList
@@ -200,23 +200,24 @@ class RetinaNetModule(torch.nn.Module):
         else:
             return self._forward_test(anchors, box_cls, box_regression)
 
-    def _forward_train(self, anchors, box_cls, box_regression, targets):
+    def _forward_train(self, anchors, box_cls, box_regression, targets, images):
         # TODO: change the loss to Yet-Another-EfficientDet if necessay
         # TODO: target format may not be compatible, what are "annotations, imgs and obj_list?
         # loss_box_cls, loss_box_reg = self.criterion(
         #     box_cls, box_regression, anchors, annotations, imgs=imgs, obj_list=obj_list
         # )
-        # loss_box_cls, loss_box_reg = self.criterion(
-        #     box_cls, box_regression, anchors, targets, imgs=images, obj_list=COCO_CLASSES
-        # )
-        loss_box_cls, loss_box_reg = self.loss_evaluator(
-            anchors, box_cls, box_regression, targets
+        loss_box_cls, loss_box_reg = self.criterion(
+            box_cls, box_regression, anchors, targets, imgs=images, obj_list=COCO_CLASSES
         )
+        # loss_box_cls, loss_box_reg = self.loss_evaluator(
+        #     anchors, box_cls, box_regression, targets
+        # )
 
         losses = {
             "loss_retina_cls": loss_box_cls,
             "loss_retina_reg": loss_box_reg,
         }
+        print(losses)
         detections = None
         if self.cfg.MODEL.MASK_ON or self.cfg.MODEL.SPARSE_MASK_ON:
             with torch.no_grad():
