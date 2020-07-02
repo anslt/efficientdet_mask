@@ -319,8 +319,8 @@ def to_bbox_detection(images, detections):
     labels = detection['class_ids']
     scores = detection['scores']
     for i, roi in enumerate(rois):
-        # TODO: fix image size.image_sizes
-        boxlist = BoxList(roi, images.image_size)
+        # TODO: fix image size.image_sizes 'ImageList' object has no attribute 'image_size'
+        boxlist = BoxList(roi, images.image_sizes)
         boxlist.add_field("labels", torch.Tensor([labels[i]]).to("cuda"))
         boxlist.add_field("scores", torch.Tensor([scores[i]]).to("cuda"))
         boxes.append(boxlist)
