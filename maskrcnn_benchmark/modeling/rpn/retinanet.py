@@ -9,9 +9,10 @@ from .anchor_generator import make_anchor_generator_retinanet
 from .retinanet_infer import  make_retinanet_postprocessor
 from .retinanet_detail_infer import  make_retinanet_detail_postprocessor
 from ..backbone.efficientdet import Regressor, Classifier
-from maskrcnn_benchmark.efficientdet.utils import Anchors
+from maskrcnn_benchmark.efficientdet.utils import Anchors, BBoxTransform, ClipBoxes
 from maskrcnn_benchmark.efficientdet.config import COCO_CLASSES
 from maskrcnn_benchmark.efficientdet.loss import FocalLoss
+from maskrcnn_benchmark.utils.utils import postprocess
 import logging
 
 
@@ -132,7 +133,7 @@ class RetinaNetModule(torch.nn.Module):
             box_selector_train = make_retinanet_postprocessor(
                 cfg, 100, box_coder)
 
-        # TODO: change to Yet-Another-EfficientNet FocalLoss()
+        # TODO: to be commented out
         loss_evaluator = make_retinanet_loss_evaluator(cfg, box_coder)
 
         self.compound_coef = cfg.EFFICIENTNET.COEF
@@ -192,9 +193,9 @@ class RetinaNetModule(torch.nn.Module):
         # print("--------------FROM RETINAMASK---------------")
         # anchors = self.anchor_generator(images, features) # [[BoxList]] a list of list of BoxList
         # print(anchors)
-        print("--------------FROM YET ANOTHER---------------")
+        # print("--------------FROM YET ANOTHER---------------")
         anchors = self.anchors(images.tensors, images.tensors.dtype) # a numpy array with shape [N, 4], which stacks anchors on all feature levels.
-        print(anchors.shape)
+        # print(anchors.shape)
 
         if self.training:
             # return self._forward_train(anchors, box_cls, box_regression, targets)
@@ -204,7 +205,8 @@ class RetinaNetModule(torch.nn.Module):
 
     def _forward_train(self, anchors, box_cls, box_regression, targets, images):
         # TODO: change the loss to Yet-Another-EfficientDet if necessay
-        # TODO: target format may not be compatible, what are "annotations, imgs and obj_list?
+        # TODO: convert format: targets to annotations
+        # (xyxy, label)
         # loss_box_cls, loss_box_reg = self.criterion(
         #     box_cls, box_regression, anchors, annotations, imgs=imgs, obj_list=obj_list
         # )
