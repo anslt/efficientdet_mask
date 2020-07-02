@@ -314,9 +314,10 @@ def to_bbox_detection(images, detections):
             applying box decoding and NMS
     """
     boxes = []
-    rois = detections['rois']
-    labels = detections['class_ids']
-    scores = detections['scores']
+    detection = detections[0]
+    rois = detection['rois']
+    labels = detection['class_ids']
+    scores = detection['scores']
     for i, roi in enumerate(rois):
         # TODO: fix image size.image_sizes
         boxlist = BoxList(roi, images.image_size)

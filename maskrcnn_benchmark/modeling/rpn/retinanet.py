@@ -196,8 +196,6 @@ class RetinaNetModule(torch.nn.Module):
         # anchors = self.anchor_generator(images, features) # [[BoxList]] a list of list of BoxList
         # print(anchors)
         # print("--------------FROM YET ANOTHER---------------")
-        print("--------------images.tensors.shape---------------")
-        print(images.tensors.shape)
         anchors = self.anchors(images.tensors, images.tensors.dtype) # a numpy array with shape [N, 4], which stacks anchors on all feature levels.
         # print(anchors.shape)
 
@@ -223,8 +221,8 @@ class RetinaNetModule(torch.nn.Module):
             "loss_retina_cls": loss_box_cls,
             "loss_retina_reg": loss_box_reg,
         }
-        print("---------------loss_box_cls, loss_box_reg--------------")
-        print(losses)
+        # print("---------------loss_box_cls, loss_box_reg--------------")
+        # print(losses)
         detections = None
         if self.cfg.MODEL.MASK_ON or self.cfg.MODEL.SPARSE_MASK_ON:
             with torch.no_grad():
@@ -240,12 +238,12 @@ class RetinaNetModule(torch.nn.Module):
         regressBoxes = BBoxTransform()
         clipBoxes = ClipBoxes()
 
-        print(images.tensors.shape[0])
+        # print(images.tensors.shape[0])
         # The use of x is only in its print(x.shape[0]). How many images does it have
         out = postprocess(images.tensors, anchors, box_regression, box_cls, regressBoxes, clipBoxes,
                           self.pre_nms_thresh, self.nms_thresh)
-        print("---------------boxes (before formatting)--------------")
-        print(out)
+        # print("---------------boxes (before formatting)--------------")
+        # print(out)
         boxes = to_bbox_detection(images, out)
         print("---------------boxes (after formating) --------------")
         print(boxes)
