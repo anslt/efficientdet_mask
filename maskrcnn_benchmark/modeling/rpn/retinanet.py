@@ -175,7 +175,7 @@ class RetinaNetModule(torch.nn.Module):
                 testing, it is an empty dict.
         """
         # TODO： convert between format
-        print("--------------FROM YET ANOTHER---------------")
+        # print("--------------FROM YET ANOTHER---------------")
         # box_regression = self.regressor(features) # a list of feature maps
         # box_cls = self.classifier(features) # a list of feature maps
         # anchors = self.anchors(images, images.dtype) # a numpy array with shape [N, 4], which stacks anchors on all feature levels.
@@ -210,7 +210,8 @@ class RetinaNetModule(torch.nn.Module):
                 detections = self.box_selector_train(
                     anchors, box_cls, box_regression
                 )
-
+                # boxlists (list[BoxList]): the post-processed anchors, after
+                # applying box decoding and NMS
         return (anchors, detections), losses
 
     def _forward_test(self, anchors, box_cls, box_regression):

@@ -1,7 +1,7 @@
 MODEL:
   META_ARCHITECTURE: "EfficientDet"
   DEVICE: "cuda"
-  WEIGHT: "../efficientdet-d0.pth"
+  WEIGHT: ""
   RPN_ONLY: True
   BACKBONE:
     CONV_BODY: "EfficientNet"
