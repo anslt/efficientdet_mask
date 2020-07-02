@@ -11,6 +11,7 @@ from .retinanet_detail_infer import  make_retinanet_detail_postprocessor
 from ..backbone.efficientdet import Regressor, Classifier
 from maskrcnn_benchmark.efficientdet.utils import Anchors
 from maskrcnn_benchmark.efficientdet.config import COCO_CLASSES
+from maskrcnn_benchmark.efficientdet.loss import FocalLoss
 import logging
 
 
@@ -159,6 +160,8 @@ class RetinaNetModule(torch.nn.Module):
         self.box_selector_test = box_selector_test
         self.box_selector_train = box_selector_train
         self.loss_evaluator = loss_evaluator
+        # TODO: use loss evaluator from Yet-Another
+        self.criterion = FocalLoss()
 
     def forward(self, images, features, targets=None):
         """
@@ -181,7 +184,7 @@ class RetinaNetModule(torch.nn.Module):
         box_cls = self.classifier(features) #  torch.cat(list of feature maps, dim=1)
         # print(box_cls.shape, box_regression.shape)
         # print(box_cls, box_regression)
-        print("--------------FROM RETINAMASK---------------")
+        # print("--------------FROM RETINAMASK---------------")
         # box_cls, box_regression = self.head(features)# a list of feature maps (tensors)
         # print(np.array(box_cls).shape, np.array(box_regression).shape)
         # print(box_cls, box_regression)
@@ -191,13 +194,13 @@ class RetinaNetModule(torch.nn.Module):
         # print(anchors)
         print("--------------FROM YET ANOTHER---------------")
         anchors = self.anchors(images.tensors, images.tensors.dtype) # a numpy array with shape [N, 4], which stacks anchors on all feature levels.
-        print(anchors)
+        print(anchors.shape)
 
 
 
         if self.training:
-            return self._forward_train(anchors, box_cls, box_regression, targets)
-            # return self._forward_train(anchors, box_cls, box_regression, targets, images)
+            # return self._forward_train(anchors, box_cls, box_regression, targets)
+            return self._forward_train(anchors, box_cls, box_regression, targets, images.tensor)
         else:
             return self._forward_test(anchors, box_cls, box_regression)
 
