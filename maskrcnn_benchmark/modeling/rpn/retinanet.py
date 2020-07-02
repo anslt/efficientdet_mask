@@ -222,21 +222,21 @@ class RetinaNetModule(torch.nn.Module):
             "loss_retina_reg": loss_box_reg,
         }
 
-        # box_regression = self.regressor(features)
-        # box_cls = self.classifier(features) #  torch.cat(list of feature maps, dim=1)
-        # anchors = self.anchors(images.tensors, images.tensors.dtype)
+        box_regression = self.regressor(features)
+        box_cls = self.classifier(features) #  torch.cat(list of feature maps, dim=1)
+        anchors = self.anchors(images.tensors, images.tensors.dtype)
         #-------------------------------------------------------------------
         detections = None
         if self.cfg.MODEL.MASK_ON or self.cfg.MODEL.SPARSE_MASK_ON:
             with torch.no_grad():
-                detections = self.box_selector_train(
-                    anchors, box_cls, box_regression
-                )
-                # regressBoxes = BBoxTransform()
-                # clipBoxes = ClipBoxes()
-                # out = postprocess(images.tensors, anchors, box_regression, box_cls, regressBoxes, clipBoxes,
-                #                   self.pre_nms_thresh, self.nms_thresh)
-                # detections = to_bbox_detection(images, out, fpn_post_nms_top_n=100)
+                # detections = self.box_selector_train(
+                #     anchors, box_cls, box_regression
+                # )
+                regressBoxes = BBoxTransform()
+                clipBoxes = ClipBoxes()
+                out = postprocess(images.tensors, anchors, box_regression, box_cls, regressBoxes, clipBoxes,
+                                  self.pre_nms_thresh, self.nms_thresh)
+                detections = to_bbox_detection(images, out, fpn_post_nms_top_n=100)
         return (anchors, detections), losses
 
     def _forward_test(self, anchors, box_cls, box_regression, images):
