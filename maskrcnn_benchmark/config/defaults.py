@@ -231,7 +231,7 @@ _C.EFFICIENTNET.COEF = 0
 _C.EFFICIENTNET.LOAD_WEIGHTS = False
 _C.EFFICIENTNET.LOAD_BACKBONE = False
 _C.EFFICIENTNET.LOAD_DIR = ""
-_C.EFFICIENTNET.RETINANET.FEW_ANCHOR=False
+_C.EFFICIENTNET.GENERATE_ANCHOR=False
 
 # ---------------------------------------------------------------------------- #
 # RetinaNet Options (Follow the Detectron version)
