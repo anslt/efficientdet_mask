@@ -194,6 +194,7 @@ class RetinaNetModule(torch.nn.Module):
         # anchors = self.anchor_generator(images, features) # [[BoxList]] a list of list of BoxList
         # print(anchors)
         # print("--------------FROM YET ANOTHER---------------")
+        print(images.tensors.shape)
         anchors = self.anchors(images.tensors, images.tensors.dtype) # a numpy array with shape [N, 4], which stacks anchors on all feature levels.
         # print(anchors.shape)
 
@@ -234,6 +235,16 @@ class RetinaNetModule(torch.nn.Module):
 
     def _forward_test(self, anchors, box_cls, box_regression):
         boxes = self.box_selector_test(anchors, box_cls, box_regression)
+        # regressBoxes = BBoxTransform()
+        # clipBoxes = ClipBoxes()
+        # print(x.shape[0])
+        # # The use of x is only in its print(x.shape[0]). How many images does it have
+        # out = postprocess(x,
+        #                   anchors, regression, classification,
+        #                   regressBoxes, clipBoxes,
+        #                   threshold, iou_threshold)
+        # print(out)
+
         '''
         if self.cfg.MODEL.RPN_ONLY:
             # For end-to-end models, the RPN proposals are an intermediate state
