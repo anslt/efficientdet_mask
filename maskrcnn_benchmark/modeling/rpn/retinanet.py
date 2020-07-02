@@ -173,6 +173,7 @@ class RetinaNetModule(torch.nn.Module):
                 detections = self.box_selector_train(
                     anchors, box_cls, box_regression
                 )
+        print("-----------   DETECTONS   ---------------------")
         print(detections)
         print(detections[0].fields)
         return (anchors, detections), losses
@@ -191,6 +192,9 @@ class RetinaNetModule(torch.nn.Module):
             ]
             boxes = [box[ind] for box, ind in zip(boxes, inds)]
         '''
+        print("-----------   DETECTONS   ---------------------")
+        print(boxes)
+        print(boxes[0].fields)
         return (anchors, boxes), {}
 
 
