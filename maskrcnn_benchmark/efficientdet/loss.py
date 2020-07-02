@@ -52,6 +52,9 @@ class FocalLoss(nn.Module):
             bbox_annotation = bbox_annotation[bbox_annotation[:, 4] != -1]
 
             classification = torch.clamp(classification, 1e-4, 1.0 - 1e-4)
+            print("cls",classification)
+            print("reg",regression)
+            print("anno",bbox_annotation)
             
             if bbox_annotation.shape[0] == 0:
                 if torch.cuda.is_available():
@@ -98,6 +101,7 @@ class FocalLoss(nn.Module):
             positive_indices = torch.ge(IoU_max, 0.5)
 
             num_positive_anchors = positive_indices.sum()
+            print(positive_indices)
 
             assigned_annotations = bbox_annotation[IoU_argmax, :]
 
