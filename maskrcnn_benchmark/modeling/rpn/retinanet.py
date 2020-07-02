@@ -174,10 +174,10 @@ class RetinaNetModule(torch.nn.Module):
                 detections = self.box_selector_train(
                     anchors, box_cls, box_regression
                 )
-        print("-----------   DETECTONS   ---------------------")
-        print(detections)
-        print(detections[0].fields())
-        return (anchors, detections), losses
+        # print("-----------   DETECTONS   ---------------------")
+        # print(detections)
+        # print(detections[0].fields())
+        # return (anchors, detections), losses
 
     def _forward_test(self, anchors, box_cls, box_regression):
         boxes = self.box_selector_test(anchors, box_cls, box_regression)
@@ -193,12 +193,14 @@ class RetinaNetModule(torch.nn.Module):
             ]
             boxes = [box[ind] for box, ind in zip(boxes, inds)]
         '''
-        print("-----------   BOXSES   ---------------------")
-        print(boxes)
-        print(boxes[0].fields())
-        print(boxes[0].get_field("scores"))
-        print(boxes[0].get_field("labels"))
-        return (anchors, boxes), {}
+        # print("-----------   BOXSES   ---------------------")
+        # print(boxes)
+        # print(boxes[0].fields())
+        # print(boxes[0].get_field("scores"))
+        # print(boxes[0].get_field("labels"))
+        # return (anchors, boxes), {}
+
+
 
 
 def build_retinanet(cfg):
