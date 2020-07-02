@@ -313,15 +313,9 @@ def to_bbox_detection(images, detections):
         boxlists (list[BoxList]): the post-processed anchors, after
             applying box decoding and NMS
     """
-    print("---------------number of images --------------")
-    print(len(detections))
     boxes = []
     for i, detection in enumerate(detections):
-        print("---------------number of detections --------------")
-        print(len(detection))
         rois = detection['rois']
-        print("---------------rois --------------")
-        print(np.array(rois).shape)
         labels = detection['class_ids']
         scores = detection['scores']
         image_width, image_height = images.image_sizes[i]
@@ -330,9 +324,9 @@ def to_bbox_detection(images, detections):
         boxlist.add_field("scores", torch.Tensor(scores).to("cuda"))
         boxes.append(boxlist)
 
-    print("---------------boxes (after formating) --------------")
-    print(boxes)
-    print(boxes[0].fields())
-    print(boxes[0].get_field("labels"))
-    print(boxes[0].get_field("scores"))
+    # print("---------------boxes (after formating) --------------")
+    # print(boxes)
+    # print(boxes[0].fields())
+    # print(boxes[0].get_field("labels"))
+    # print(boxes[0].get_field("scores"))
     return boxes
