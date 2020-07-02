@@ -318,6 +318,8 @@ def to_bbox_detection(images, detections):
     rois = detection['rois']
     labels = detection['class_ids']
     scores = detection['scores']
+    print(images.image_sizes)
+    print(images[0].image_sizes)
     image_width, image_height = images.image_sizes
     for i, roi in enumerate(rois):
         # TODO: fix image size.image_sizes 'ImageList' object has no attribute 'image_size'
