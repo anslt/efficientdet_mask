@@ -14,7 +14,7 @@ from maskrcnn_benchmark.modeling.roi_heads.mask_head.mask_head import build_roi_
 #from maskrcnn_benchmark.modeling.roi_heads.sparsemask_head.mask_head import build_sparse_mask_head
 from maskrcnn_benchmark.structures.boxlist_ops import cat_boxlist
 import copy
-from numpy import np
+import numpy as np
 
 class EfficientDet(nn.Module):
     """
