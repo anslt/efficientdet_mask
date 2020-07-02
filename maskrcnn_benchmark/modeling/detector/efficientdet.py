@@ -14,6 +14,7 @@ from maskrcnn_benchmark.modeling.roi_heads.mask_head.mask_head import build_roi_
 #from maskrcnn_benchmark.modeling.roi_heads.sparsemask_head.mask_head import build_sparse_mask_head
 from maskrcnn_benchmark.structures.boxlist_ops import cat_boxlist
 import copy
+from numpy import np
 
 class EfficientDet(nn.Module):
     """
@@ -52,11 +53,14 @@ class EfficientDet(nn.Module):
         images = to_image_list(images)
         features = self.backbone(images.tensors)
 
+        if targets is not None:
+            np_targets = [np.concatenate((target.bbox.numpy(), target.get_field("labels").numpy()[:, np.newaxis]),
+                                         axis=1) for target in targets]
         #Retina RPN Output
         rpn_features = features
         if self.cfg.RETINANET.BACKBONE == "p2p7":
             rpn_features = features[1:]
-        (anchors, detections), detector_losses = self.rpn(images, rpn_features, targets)
+        (anchors, detections), detector_losses = self.rpn(images, rpn_features, np_targets)
         if self.training:
             losses = {}
             losses.update(detector_losses)
