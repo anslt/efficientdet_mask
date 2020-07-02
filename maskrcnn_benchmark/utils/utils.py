@@ -327,6 +327,6 @@ def to_bbox_detection(images, detections):
     # print("---------------boxes (after formating) --------------")
     # print(boxes)
     # print(boxes[0].fields())
-    print(boxes[0].get_field("labels"))
+    # print(boxes[0].get_field("labels"))
     # print(boxes[0].get_field("scores"))
     return boxes

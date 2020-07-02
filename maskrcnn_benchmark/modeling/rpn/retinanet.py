@@ -221,33 +221,32 @@ class RetinaNetModule(torch.nn.Module):
             "loss_retina_cls": loss_box_cls,
             "loss_retina_reg": loss_box_reg,
         }
-        # print("---------------loss_box_cls, loss_box_reg--------------")
-        # print(losses)
+
+        box_regression = self.regressor(features)
+        box_cls = self.classifier(features) #  torch.cat(list of feature maps, dim=1)
+        anchors = self.anchors(images.tensors, images.tensors.dtype)
+        #-------------------------------------------------------------------
         detections = None
         if self.cfg.MODEL.MASK_ON or self.cfg.MODEL.SPARSE_MASK_ON:
             with torch.no_grad():
-                detections = self.box_selector_train(
-                    anchors, box_cls, box_regression
-                )
-                # boxlists (list[BoxList]): the post-processed anchors, after
-                # applying box decoding and NMS
+                # detections = self.box_selector_train(
+                #     anchors, box_cls, box_regression
+                # )
+                regressBoxes = BBoxTransform()
+                clipBoxes = ClipBoxes()
+                out = postprocess(images.tensors, anchors, box_regression, box_cls, regressBoxes, clipBoxes,
+                                  self.pre_nms_thresh, self.nms_thresh)
+                detections = to_bbox_detection(images, out)
         return (anchors, detections), losses
 
     def _forward_test(self, anchors, box_cls, box_regression, images):
         # boxes = self.box_selector_test(anchors, box_cls, box_regression)
         regressBoxes = BBoxTransform()
         clipBoxes = ClipBoxes()
-
-        # print(images.tensors.shape[0])
-        # The use of x is only in its print(x.shape[0]). How many images does it have
         out = postprocess(images.tensors, anchors, box_regression, box_cls, regressBoxes, clipBoxes,
                           self.pre_nms_thresh, self.nms_thresh)
-        # print("---------------boxes (before formatting)--------------")
-        # print(out)
         boxes = to_bbox_detection(images, out)
-        # print("---------------boxes (after formating) --------------")
-        # print(boxes)
-
+        #TODO:  currently the limit for pre_nms_top_n and fpn_post_nms_top_n are not set
         '''
         if self.cfg.MODEL.RPN_ONLY:
             # For end-to-end models, the RPN proposals are an intermediate state
