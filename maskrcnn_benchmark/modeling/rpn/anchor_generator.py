@@ -67,6 +67,9 @@ class AnchorGenerator(nn.Module):
         self.cell_anchors = BufferList(cell_anchors)
         self.straddle_thresh = straddle_thresh
 
+        #######################
+        self.anchor_new_generator = Anchors()
+
     def num_anchors_per_location(self):
         return [len(cell_anchors) for cell_anchors in self.cell_anchors]
 
@@ -123,6 +126,15 @@ class AnchorGenerator(nn.Module):
                 self.add_visibility_to(boxlist)
                 anchors_in_image.append(boxlist)
             anchors.append(anchors_in_image)
+
+
+        a = anchors
+        while type(a[0]) == "list":
+            print(len(a))
+            print(a)
+            a = a[0]
+        
+
         return anchors
 
 
@@ -178,6 +190,8 @@ def make_anchor_generator_retinanet(config):
     anchor_generator = AnchorGenerator(
         tuple(new_anchor_sizes), aspect_ratios, anchor_strides, straddle_thresh
     )
+
+
     print("retina:anchor size:")
     print(anchor_sizes)
     print("retina:new anchor size:")
