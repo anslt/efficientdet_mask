@@ -316,12 +316,12 @@ def to_bbox_detection(images, detections):
     print("---------------number of images --------------")
     print(len(detections))
     boxes = []
-    for detection in detections:
+    for i, detection in enumerate(detections):
         print("---------------number of detections --------------")
         print(len(detection))
         rois = detection['rois']
         print("---------------rois --------------")
-        print(rois)
+        print(np.array(rois).shape)
         labels = detection['class_ids']
         scores = detection['scores']
         image_width, image_height = images.image_sizes[i]
