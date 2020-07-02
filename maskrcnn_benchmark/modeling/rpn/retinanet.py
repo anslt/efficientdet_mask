@@ -186,12 +186,13 @@ class RetinaNetModule(torch.nn.Module):
         # print(np.array(box_cls).shape, np.array(box_regression).shape)
         # print(box_cls, box_regression)
 
+        # print("--------------FROM RETINAMASK---------------")
+        # anchors = self.anchor_generator(images, features) # [[BoxList]] a list of list of BoxList
+        # print(anchors)
         print("--------------FROM YET ANOTHER---------------")
         anchors = self.anchors(images.tensors, images.tensors.dtype) # a numpy array with shape [N, 4], which stacks anchors on all feature levels.
         print(anchors)
-        print("--------------FROM RETINAMASK---------------")
-        anchors = self.anchor_generator(images, features) # [[BoxList]] a list of list of BoxList
-        print(anchors)
+
 
 
         if self.training:
