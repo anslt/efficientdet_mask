@@ -196,11 +196,9 @@ class RetinaNetModule(torch.nn.Module):
         anchors = self.anchors(images.tensors, images.tensors.dtype) # a numpy array with shape [N, 4], which stacks anchors on all feature levels.
         print(anchors.shape)
 
-
-
         if self.training:
             # return self._forward_train(anchors, box_cls, box_regression, targets)
-            return self._forward_train(anchors, box_cls, box_regression, targets, images.tensor)
+            return self._forward_train(anchors, box_cls, box_regression, targets, images.tensors)
         else:
             return self._forward_test(anchors, box_cls, box_regression)
 

@@ -1,3 +1,5 @@
 datasets
 .idea
+**/__pycache__
+maskrcnn_benchmark.egg-info/
 

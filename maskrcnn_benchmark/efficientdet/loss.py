@@ -2,9 +2,9 @@ import torch
 import torch.nn as nn
 import cv2
 import numpy as np
-
+from maskrcnn_benchmark.utils.utils import postprocess, invert_affine, display
 from .utils import BBoxTransform, ClipBoxes
-from .utils.utils import postprocess, invert_affine, display
+
 
 
 def calc_iou(a, b):
