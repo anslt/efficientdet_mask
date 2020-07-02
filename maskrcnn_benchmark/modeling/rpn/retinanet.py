@@ -177,13 +177,13 @@ class RetinaNetModule(torch.nn.Module):
         """
         # TODO： convert between format
         print("--------------FROM YET ANOTHER---------------")
-        box_regression = self.regressor(features) # a list of feature maps
+        box_regression = self.regressor(features)
         box_cls = self.classifier(features) #  torch.cat(list of feature maps, dim=1)
         print(box_cls.shape, box_regression.shape)
         print(box_cls, box_regression)
         print("--------------FROM RETINAMASK---------------")
         box_cls, box_regression = self.head(features)# a list of feature maps (tensors)
-        print(box_cls.shape, box_regression.shape)
+        print(np.array(box_cls).shape, np.array(box_regression).shape)
         print(box_cls, box_regression)
 
         print("--------------FROM YET ANOTHER---------------")
