@@ -179,14 +179,20 @@ class RetinaNetModule(torch.nn.Module):
         print("--------------FROM YET ANOTHER---------------")
         box_regression = self.regressor(features) # a list of feature maps
         box_cls = self.classifier(features) #  torch.cat(list of feature maps, dim=1)
-        # anchors = self.anchors(images, images.dtype) # a numpy array with shape [N, 4], which stacks anchors on all feature levels.
+        print(box_cls.shape, box_regression.shape)
         print(box_cls, box_regression)
         print("--------------FROM RETINAMASK---------------")
         box_cls, box_regression = self.head(features)# a list of feature maps (tensors)
+        print(box_cls.shape, box_regression.shape)
+        print(box_cls, box_regression)
+
+        print("--------------FROM YET ANOTHER---------------")
+        anchors = self.anchors(images) # a numpy array with shape [N, 4], which stacks anchors on all feature levels.
+        print(anchors)
+        print("--------------FROM RETINAMASK---------------")
         anchors = self.anchor_generator(images, features) # [[BoxList]] a list of list of BoxList
-        # print(box_cls, box_regression, anchors)
-        print(images[0])
-        print(images[0].dtype)
+        print(anchors)
+
 
         if self.training:
             return self._forward_train(anchors, box_cls, box_regression, targets)
