@@ -12,7 +12,7 @@ from ..backbone.efficientdet import Regressor, Classifier
 from maskrcnn_benchmark.efficientdet.utils import Anchors, BBoxTransform, ClipBoxes
 from maskrcnn_benchmark.efficientdet.config import COCO_CLASSES
 from maskrcnn_benchmark.efficientdet.loss import FocalLoss
-from maskrcnn_benchmark.utils.utils import postprocess, to_bbox_detection, select_over_all_levels
+from maskrcnn_benchmark.utils.utils import postprocess, to_bbox_detection
 import logging
 
 
