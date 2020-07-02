@@ -9,9 +9,10 @@ from .anchor_generator import make_anchor_generator_retinanet
 from .retinanet_infer import  make_retinanet_postprocessor
 from .retinanet_detail_infer import  make_retinanet_detail_postprocessor
 from ..backbone.efficientdet import Regressor, Classifier
-from maskrcnn_benchmark.efficientdet.utils import Anchors
+from maskrcnn_benchmark.efficientdet.utils import Anchors, BBoxTransform, ClipBoxes
 from maskrcnn_benchmark.efficientdet.config import COCO_CLASSES
 from maskrcnn_benchmark.efficientdet.loss import FocalLoss
+from maskrcnn_benchmark.utils.utils import postprocess
 import logging
 
 
