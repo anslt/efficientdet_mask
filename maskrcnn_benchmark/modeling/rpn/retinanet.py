@@ -10,6 +10,7 @@ from .retinanet_infer import  make_retinanet_postprocessor
 from .retinanet_detail_infer import  make_retinanet_detail_postprocessor
 from ..backbone.efficientdet import Regressor, Classifier
 from maskrcnn_benchmark.efficientdet.utils import Anchors
+from maskrcnn_benchmark.efficientdet.config import COCO_CLASSES
 import logging
 
 
@@ -133,28 +134,28 @@ class RetinaNetModule(torch.nn.Module):
         # TODO: change to Yet-Another-EfficientNet FocalLoss()
         loss_evaluator = make_retinanet_loss_evaluator(cfg, box_coder)
 
-        # self.compound_coef = cfg.EFFICIENTNET.COEF
-        # self.fpn_num_filters = [64, 88, 112, 160, 224, 288, 384, 384]
-        # self.fpn_cell_repeats = [3, 4, 5, 6, 7, 7, 8, 8]
-        # self.box_class_repeats = [3, 3, 3, 4, 4, 4, 5, 5]
-        # self.anchor_scale = [4., 4., 4., 4., 4., 4., 4., 5.]
-        # self.aspect_ratios = [(1.0, 1.0), (1.4, 0.7), (0.7, 1.4)]
-        # self.num_scales = len([2 ** 0, 2 ** (1.0 / 3.0), 2 ** (2.0 / 3.0)])
-        #
-        # num_anchors = len(self.aspect_ratios) * self.num_scales
-        # num_classes = cfg.RETINANET.NUM_CLASSES - 1
+        self.compound_coef = cfg.EFFICIENTNET.COEF
+        self.fpn_num_filters = [64, 88, 112, 160, 224, 288, 384, 384]
+        self.fpn_cell_repeats = [3, 4, 5, 6, 7, 7, 8, 8]
+        self.box_class_repeats = [3, 3, 3, 4, 4, 4, 5, 5]
+        self.anchor_scale = [4., 4., 4., 4., 4., 4., 4., 5.]
+        self.aspect_ratios = [(1.0, 1.0), (1.4, 0.7), (0.7, 1.4)]
+        self.num_scales = len([2 ** 0, 2 ** (1.0 / 3.0), 2 ** (2.0 / 3.0)])
+
+        num_anchors = len(self.aspect_ratios) * self.num_scales
+        num_classes = cfg.RETINANET.NUM_CLASSES - 1
 
         # TODO: to be commented out
         self.anchor_generator = anchor_generator
         self.head = head
 
-        # self.regressor = Regressor(in_channels=self.fpn_num_filters[self.compound_coef],
-        #                            num_anchors=num_anchors,
-        #                            num_layers=self.box_class_repeats[self.compound_coef])
-        # self.classifier = Classifier(in_channels=self.fpn_num_filters[self.compound_coef],
-        #                              num_anchors=num_anchors, num_classes=num_classes,
-        #                              num_layers=self.box_class_repeats[self.compound_coef])
-        # self.anchors = Anchors(anchor_scale=self.anchor_scale[self.compound_coef])
+        self.regressor = Regressor(in_channels=self.fpn_num_filters[self.compound_coef],
+                                   num_anchors=num_anchors,
+                                   num_layers=self.box_class_repeats[self.compound_coef])
+        self.classifier = Classifier(in_channels=self.fpn_num_filters[self.compound_coef],
+                                     num_anchors=num_anchors, num_classes=num_classes,
+                                     num_layers=self.box_class_repeats[self.compound_coef])
+        self.anchors = Anchors(anchor_scale=self.anchor_scale[self.compound_coef])
         self.box_selector_test = box_selector_test
         self.box_selector_train = box_selector_train
         self.loss_evaluator = loss_evaluator
@@ -175,18 +176,19 @@ class RetinaNetModule(torch.nn.Module):
                 testing, it is an empty dict.
         """
         # TODO： convert between format
-        # print("--------------FROM YET ANOTHER---------------")
-        # box_regression = self.regressor(features) # a list of feature maps
-        # box_cls = self.classifier(features) # a list of feature maps
-        # anchors = self.anchors(images, images.dtype) # a numpy array with shape [N, 4], which stacks anchors on all feature levels.
-        # print(box_cls, box_regression, anchors)
+        print("--------------FROM YET ANOTHER---------------")
+        box_regression = self.regressor(features) # a list of feature maps
+        box_cls = self.classifier(features) #  torch.cat(list of feature maps, dim=1)
+        anchors = self.anchors(images, images.dtype) # a numpy array with shape [N, 4], which stacks anchors on all feature levels.
+        print(box_cls, box_regression, anchors)
         print("--------------FROM RETINAMASK---------------")
-        box_cls, box_regression = self.head(features)#  torch.cat(list of feature maps, dim=1)
+        box_cls, box_regression = self.head(features)# a list of feature maps (tensors)
         anchors = self.anchor_generator(images, features) # [[BoxList]] a list of list of BoxList
         print(box_cls, box_regression, anchors)
 
         if self.training:
             return self._forward_train(anchors, box_cls, box_regression, targets)
+            # return self._forward_train(anchors, box_cls, box_regression, targets, images)
         else:
             return self._forward_test(anchors, box_cls, box_regression)
 
@@ -195,6 +197,9 @@ class RetinaNetModule(torch.nn.Module):
         # TODO: target format may not be compatible, what are "annotations, imgs and obj_list?
         # loss_box_cls, loss_box_reg = self.criterion(
         #     box_cls, box_regression, anchors, annotations, imgs=imgs, obj_list=obj_list
+        # )
+        # loss_box_cls, loss_box_reg = self.criterion(
+        #     box_cls, box_regression, anchors, targets, imgs=images, obj_list=COCO_CLASSES
         # )
         loss_box_cls, loss_box_reg = self.loss_evaluator(
             anchors, box_cls, box_regression, targets
