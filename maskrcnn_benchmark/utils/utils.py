@@ -320,13 +320,13 @@ def to_bbox_detection(images, detections):
         scores = detection['scores']
         image_width, image_height = images.image_sizes[i]
         boxlist = BoxList(torch.Tensor(rois).to("cuda"), (image_width, image_height))
-        boxlist.add_field("labels", torch.Tensor(labels).to("cuda"))
+        boxlist.add_field("labels", torch.Tensor(labels).type(torch.LongTensor).to("cuda"))
         boxlist.add_field("scores", torch.Tensor(scores).to("cuda"))
         boxes.append(boxlist)
 
     # print("---------------boxes (after formating) --------------")
     # print(boxes)
     # print(boxes[0].fields())
-    # print(boxes[0].get_field("labels"))
+    print(boxes[0].get_field("labels"))
     # print(boxes[0].get_field("scores"))
     return boxes

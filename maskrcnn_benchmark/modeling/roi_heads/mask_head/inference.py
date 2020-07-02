@@ -45,6 +45,9 @@ class MaskPostProcessor(nn.Module):
         labels = [bbox.get_field("labels") for bbox in boxes]
         labels = torch.cat(labels)
         index = torch.arange(num_masks, device=labels.device)
+        print(index)
+        print(labels)
+        print(labels.type())
         #IndexError: tensors used as indices must be long, byte or bool tensors
         mask_prob = mask_prob[index, labels][:, None]
 
