@@ -222,9 +222,9 @@ class RetinaNetModule(torch.nn.Module):
             "loss_retina_reg": loss_box_reg,
         }
 
-        box_regression = self.regressor(features)
-        box_cls = self.classifier(features) #  torch.cat(list of feature maps, dim=1)
-        anchors = self.anchors(images.tensors, images.tensors.dtype)
+        # box_regression = self.regressor(features)
+        # box_cls = self.classifier(features) #  torch.cat(list of feature maps, dim=1)
+        # anchors = self.anchors(images.tensors, images.tensors.dtype)
         #-------------------------------------------------------------------
         detections = None
         if self.cfg.MODEL.MASK_ON or self.cfg.MODEL.SPARSE_MASK_ON:

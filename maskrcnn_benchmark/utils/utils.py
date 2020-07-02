@@ -347,11 +347,11 @@ def to_bbox_detection(images, detections, fpn_post_nms_top_n=100):
                 "scores", torch.Tensor([0.01]).to('cuda'))
             boxes.append(boxlist)
 
-    print("---------------boxes (top 100 after nms) --------------")
-    print(boxes)
-    print(boxes[0].fields())
-    print(boxes[0].get_field("labels"))
-    print(boxes[0].get_field("scores"))
+    # print("---------------boxes (top 100 after nms) --------------")
+    # print(boxes)
+    # print(boxes[0].fields())
+    # print(boxes[0].get_field("labels"))
+    # print(boxes[0].get_field("scores"))
 
     return boxes
 
