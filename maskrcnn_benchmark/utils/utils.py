@@ -12,6 +12,7 @@ from torchvision.ops.boxes import batched_nms
 from typing import Union
 import uuid
 
+from maskrcnn_benchmark.structures.bounding_box import BoxList
 from .sync_batchnorm import SynchronizedBatchNorm2d
 
 from torch.nn.init import _calculate_fan_in_and_fan_out, _no_grad_normal_
@@ -298,3 +299,33 @@ def plot_one_box(img, coord, label=None, score=None, color=None, line_thickness=
         c2 = c1[0] + t_size[0]+s_size[0]+15, c1[1] - t_size[1] -3
         cv2.rectangle(img, c1, c2 , color, -1)  # filled
         cv2.putText(img, '{}: {:.0%}'.format(label, score), (c1[0],c1[1] - 2), 0, float(tl) / 3, [0, 0, 0], thickness=tf, lineType=cv2.FONT_HERSHEY_SIMPLEX)
+
+
+def to_bbox_detection(images, detections):
+    """
+    Arguments:
+        detections: [{'rois': array([[333.90854, 239.91882, 424.3854 , 287.47577],..
+        ,[103.98116   , 197.5421    , 129.49635, 237.02315]],
+        dtype=float32), 'class_ids': array([2,.., 0]),
+        'scores': array([0.84606266, ..., 0.20120995], dtype=float32)}]
+
+    Returns:
+        boxlists (list[BoxList]): the post-processed anchors, after
+            applying box decoding and NMS
+    """
+    boxes = []
+    rois = detections['rois']
+    labels = detections['class_ids']
+    scores = detections['scores']
+    for i, roi in enumerate(rois):
+        # TODO: fix image size.image_sizes
+        boxlist = BoxList(roi, images.image_size)
+        boxlist.add_field("labels", torch.Tensor([labels[i]]).to("cuda"))
+        boxlist.add_field("scores", torch.Tensor([scores[i]]).to("cuda"))
+        boxes.append(boxlist)
+
+    print(boxes)
+    print(boxes[0].fields())
+    print(boxes[0].get_field("labels"))
+    print(boxes[0].get_field("scores"))
+    return boxes
