@@ -173,11 +173,13 @@ class RetinaNetModule(torch.nn.Module):
                 detections = self.box_selector_train(
                     anchors, box_cls, box_regression
                 )
-
+        print(detections)
+        print(detections[0].fields)
         return (anchors, detections), losses
 
     def _forward_test(self, anchors, box_cls, box_regression):
         boxes = self.box_selector_test(anchors, box_cls, box_regression)
+
         '''
         if self.cfg.MODEL.RPN_ONLY:
             # For end-to-end models, the RPN proposals are an intermediate state
