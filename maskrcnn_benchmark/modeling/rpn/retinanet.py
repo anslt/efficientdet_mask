@@ -203,23 +203,21 @@ class RetinaNetModule(torch.nn.Module):
 
         if self.training:
             # return self._forward_train(anchors, box_cls, box_regression, targets)
-            return self._forward_train(anchors, box_cls, box_regression, targets, images)
+            return self._forward_train(anchors, box_cls, box_regression, targets, images, features)
         else:
             return self._forward_test(anchors, box_cls, box_regression, images)
 
-    def _forward_train(self, anchors, box_cls, box_regression, targets, images):
+    def _forward_train(self, anchors, box_cls, box_regression, targets, images, features):
         # TODO: change the loss to Yet-Another-EfficientDet if necessay
         # TODO: convert format: targets to annotations
-        # (xyxy, label)
         # loss_box_cls, loss_box_reg = self.criterion(
-        #     box_cls, box_regression, anchors, annotations, imgs=imgs, obj_list=obj_list
+        #     box_cls, box_regression, anchors, targets, imgs=images.tensors, obj_list=COCO_CLASSES
         # )
-        loss_box_cls, loss_box_reg = self.criterion(
-            box_cls, box_regression, anchors, targets, imgs=images.tensors, obj_list=COCO_CLASSES
+        box_cls, box_regression = self.head(features)
+        anchors = self.anchor_generator(images, features)
+        loss_box_cls, loss_box_reg = self.loss_evaluator(
+            anchors, box_cls, box_regression, targets
         )
-        # loss_box_cls, loss_box_reg = self.loss_evaluator(
-        #     anchors, box_cls, box_regression, targets
-        # )
 
         losses = {
             "loss_retina_cls": loss_box_cls,
