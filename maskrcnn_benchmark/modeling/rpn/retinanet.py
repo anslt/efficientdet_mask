@@ -196,8 +196,8 @@ class RetinaNetModule(torch.nn.Module):
         print("-----------   BOXSES   ---------------------")
         print(boxes)
         print(boxes[0].fields())
-        print(boxes[0].get_filed("scores"))
-        print(boxes[0].get_filed("labels"))
+        print(boxes[0].get_field("scores"))
+        print(boxes[0].get_field("labels"))
         return (anchors, boxes), {}
 
 
