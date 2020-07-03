@@ -251,6 +251,7 @@ class RetinaNetModule(torch.nn.Module):
             ]
             boxes = [box[ind] for box, ind in zip(boxes, inds)]
         '''
+
         return (anchors, boxes), {}
 
 
