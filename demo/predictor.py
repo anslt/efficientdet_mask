@@ -258,7 +258,14 @@ class COCODemo(object):
         """
 
         labels = predictions.get_field("labels")
+        labels = torch.Tensor([2, 1, 1, 1, 3, 0])
         boxes = predictions.bbox
+        boxes = torch.Tensor([[0.0000e+00, 0.0000e+00, -6.1876e+05, -2.3188e+05],
+                              [0.0000e+00, 0.0000e+00, -5.0229e+06, -3.7727e+06],
+                              [0.0000e+00, 0.0000e+00, -3.8676e+06, -5.5495e+06],
+                              [1.5260e+06, 0.0000e+00, 6.3875e+02, -6.8767e+06],
+                              [2.4867e+06, 2.4906e+05, 6.3875e+02, 4.7906e+02],
+                              [0.0000e+00, 0.0000e+00, -3.3675e+07, -2.7688e+08]])
         colors = self.compute_colors_for_labels(labels).tolist()
 
         for box, color in zip(boxes, colors):
