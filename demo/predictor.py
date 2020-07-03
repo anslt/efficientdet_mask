@@ -256,6 +256,9 @@ class COCODemo(object):
             predictions (BoxList): the result of the computation by the model.
                 It should contain the field `labels`.
         """
+
+        image = np.array(image)
+
         labels = predictions.get_field("labels")
         boxes = predictions.bbox
         colors = self.compute_colors_for_labels(labels).tolist()
@@ -268,7 +271,6 @@ class COCODemo(object):
         for box, color in zip(boxes, colors):
             box = box.to(torch.int64)
             top_left, bottom_right = box[:2].tolist(), box[2:].tolist()
-            image = np.array(image)
             image = cv2.rectangle(
                 image, tuple(top_left), tuple(bottom_right), tuple(color), 1
             )
