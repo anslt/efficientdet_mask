@@ -330,21 +330,14 @@ def to_bbox_detection(images, detections, fpn_post_nms_top_n=100):
 
         if number_of_detections > 0:
             if number_of_detections > fpn_post_nms_top_n:
-                # TODO: not reducing the number. Fix it
                 cls_scores = boxlist.get_field("scores")
-                print("-------------------scores----------------------------")
-                print(cls_scores)
                 image_thresh, _ = torch.kthvalue(
                     cls_scores.cpu(),
                     number_of_detections - fpn_post_nms_top_n + 1
                 )
                 keep = cls_scores >= image_thresh.item()
                 keep = torch.nonzero(keep).squeeze(1)
-                print("-------------image_thresh--------------------")
-                print(image_thresh, len(keep))
                 boxlist = boxlist[keep]
-                print("-------------------new boxlist----------------------------")
-                print(boxlist)
             boxes.append(boxlist)
         else:
             empty_boxlist = BoxList(torch.zeros(1, 4).to('cuda'), boxlist.size)

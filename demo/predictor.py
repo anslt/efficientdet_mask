@@ -169,13 +169,7 @@ class COCODemo(object):
                 the BoxList via `prediction.fields()`
         """
         predictions = self.compute_prediction(image)
-        print("-------------------predictions------------------------")
-        print(predictions)
         top_predictions = self.select_top_predictions(predictions)
-        print("-------------------top predictions------------------------")
-        print(top_predictions)
-        bb = top_predictions.bbox
-        print(bb)
 
         result = image.copy()
         if self.show_mask_heatmaps:
@@ -264,6 +258,12 @@ class COCODemo(object):
         labels = predictions.get_field("labels")
         boxes = predictions.bbox
         colors = self.compute_colors_for_labels(labels).tolist()
+        print("--------------labels-------------")
+        print(labels)
+        print("--------------boxes-------------")
+        print(boxes)
+        print("--------------colors--------------")
+        print(colors)
         for box, color in zip(boxes, colors):
             box = box.to(torch.int64)
             top_left, bottom_right = box[:2].tolist(), box[2:].tolist()
