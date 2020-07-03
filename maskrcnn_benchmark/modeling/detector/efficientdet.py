@@ -113,4 +113,7 @@ class EfficientDet(nn.Module):
                     )
                 else:
                     x, detections, mask_losses = self.mask(features, proposals, targets)
+            print("-----------------------detections---------------------------------")
+            print(detections.get_field("labels"))
+            print(detections.bbox)
             return detections
