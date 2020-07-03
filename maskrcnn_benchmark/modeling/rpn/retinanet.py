@@ -208,24 +208,22 @@ class RetinaNetModule(torch.nn.Module):
     def _forward_train(self, anchors, box_cls, box_regression, targets, images, features):
         # TODO: change the loss to Yet-Another-EfficientDet if necessay
         # TODO: convert format: targets to annotations
+        # (xyxy, label)
         # loss_box_cls, loss_box_reg = self.criterion(
         #     box_cls, box_regression, anchors, targets, imgs=images.tensors, obj_list=COCO_CLASSES
         # )
-        box_cls, box_regression = self.head(features)
-        anchors = self.anchor_generator(images, features)
-        loss_box_cls, loss_box_reg = self.loss_evaluator(
-            anchors, box_cls, box_regression, targets
+        loss_box_cls, loss_box_reg = self.criterion(
+            box_cls, box_regression, anchors, targets, imgs=images, obj_list=COCO_CLASSES
         )
+        # loss_box_cls, loss_box_reg = self.loss_evaluator(
+        #     anchors, box_cls, box_regression, targets
+        # )
 
         losses = {
             "loss_retina_cls": loss_box_cls,
             "loss_retina_reg": loss_box_reg,
         }
-
-        # box_regression = self.regressor(features)
-        # box_cls = self.classifier(features) #  torch.cat(list of feature maps, dim=1)
-        # anchors = self.anchors(images.tensors, images.tensors.dtype)
-        #-------------------------------------------------------------------
+        #print(losses)
         detections = None
         if self.cfg.MODEL.MASK_ON or self.cfg.MODEL.SPARSE_MASK_ON:
             with torch.no_grad():

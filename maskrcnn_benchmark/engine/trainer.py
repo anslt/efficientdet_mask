@@ -67,6 +67,7 @@ def do_train(
     model.train()
     start_training_time = time.time()
     end = time.time()
+    loss_show = []
     try:
         for iteration, (images, targets, _) in enumerate(data_loader, start_iter):
             data_time = time.time() - end
@@ -103,6 +104,8 @@ def do_train(
             #if cfg.MODEL.MASK_ON:
             #    write.add_scalar('loss/mask',loss_dict["loss_mask"],iteration)
             #if iteration % 20 == 0 or iteration == (max_iter - 1):
+
+            loss_show.append(losses.item())
             if iteration % 50 == 0 or iteration == (max_iter - 1):
                 logger.info(
                 meters.delimiter.join(
@@ -121,6 +124,8 @@ def do_train(
                     memory=torch.cuda.max_memory_allocated() / 1024.0 / 1024.0,
                 )
             )
+                print(loss_show)
+                loss_show = []
             if iteration % checkpoint_period == 0 and iteration > 0:
                 #write.export_scalars_to_json("./all_scalars_{:07d}.json".format(iteration+1))
                 checkpointer.save("model_{:07d}".format(iteration+1), **arguments)
