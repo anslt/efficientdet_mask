@@ -327,20 +327,26 @@ def to_bbox_detection(images, detections, fpn_post_nms_top_n=100):
 
         number_of_detections = len(rois)
         # Limit to max_per_image detections **over all classes**
-        print("-------------number of detections--------------------")
-        print(number_of_detections)
-        if number_of_detections > 0:
-            if number_of_detections > fpn_post_nms_top_n > 0:
 
+        if number_of_detections > 0:
+            if number_of_detections > fpn_post_nms_top_n:
+                # TODO: not reducing the number. Fix it
+                print("-------------number of detections--------------------")
+                print(number_of_detections, fpn_post_nms_top_n)
                 cls_scores = boxlist.get_field("scores")
                 image_thresh, _ = torch.kthvalue(
                     cls_scores.cpu(),
                     number_of_detections - fpn_post_nms_top_n + 1
                 )
-                # TODO: this keeps 10000 boxs at the beginning. change to just >?
+                print("-------------image_thresh--------------------")
+                print(image_thresh)
                 keep = cls_scores >= image_thresh.item()
                 keep = torch.nonzero(keep).squeeze(1)
+                print("-------------keep--------------------")
+                print(keep)
                 boxlist = boxlist[keep]
+                print("-------------filtered boxlist--------------------")
+                print(boxlist)
             boxes.append(boxlist)
         else:
             empty_boxlist = BoxList(torch.zeros(1, 4).to('cuda'), boxlist.size)
