@@ -2,6 +2,7 @@
 import cv2
 import torch
 from torchvision import transforms as T
+import numpy as np
 
 from maskrcnn_benchmark.modeling.detector import build_detection_model
 from maskrcnn_benchmark.utils.checkpoint import DetectronCheckpointer
@@ -267,6 +268,7 @@ class COCODemo(object):
         for box, color in zip(boxes, colors):
             box = box.to(torch.int64)
             top_left, bottom_right = box[:2].tolist(), box[2:].tolist()
+            image = np.array(image)
             image = cv2.rectangle(
                 image, tuple(top_left), tuple(bottom_right), tuple(color), 1
             )
