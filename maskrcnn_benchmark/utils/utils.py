@@ -334,6 +334,8 @@ def to_bbox_detection(images, detections, fpn_post_nms_top_n=100):
                 print("-------------number of detections--------------------")
                 print(number_of_detections, fpn_post_nms_top_n)
                 cls_scores = boxlist.get_field("scores")
+                print("-------------------scores----------------------------")
+                print(cls_scores)
                 image_thresh, _ = torch.kthvalue(
                     cls_scores.cpu(),
                     number_of_detections - fpn_post_nms_top_n + 1
