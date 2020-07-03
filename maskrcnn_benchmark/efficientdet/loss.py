@@ -52,7 +52,7 @@ class FocalLoss(nn.Module):
             bbox_annotation = bbox_annotation[bbox_annotation[:, 4] != -1]
 
             classification = torch.clamp(classification, 1e-4, 1.0 - 1e-4)
-            print("anno",torch.max(bbox_annotation[:,4], dim=0))
+            #print("anno",torch.max(bbox_annotation[:,4], dim=0))
 
 
             if bbox_annotation.shape[0] == 0:

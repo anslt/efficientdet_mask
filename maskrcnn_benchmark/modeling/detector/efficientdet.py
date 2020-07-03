@@ -54,7 +54,7 @@ class EfficientDet(nn.Module):
         features = self.backbone(images.tensors)
 
         if targets is not None:
-            np_targets = [torch.cat([target.bbox, target.get_field("labels").float().unsqueeze(-1)],
+            np_targets = [torch.cat([target.bbox, (target.get_field("labels").float() - 1).unsqueeze(-1)],
                                          axis=-1) for target in targets]
         else:
             np_targets = []
