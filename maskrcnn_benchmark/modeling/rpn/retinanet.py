@@ -251,6 +251,9 @@ class RetinaNetModule(torch.nn.Module):
             ]
             boxes = [box[ind] for box, ind in zip(boxes, inds)]
         '''
+        print("-----------------------detections 1---------------------------------")
+        print(boxes.get_field("labels"))
+        print(boxes.bbox)
         return (anchors, boxes), {}
 
 
