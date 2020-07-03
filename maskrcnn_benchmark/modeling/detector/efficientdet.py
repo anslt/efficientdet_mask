@@ -65,8 +65,9 @@ class EfficientDet(nn.Module):
             rpn_features = features[1:]
         (anchors, detections), detector_losses = self.rpn(images, rpn_features, np_targets)
         print("-----------------------detections 2---------------------------------")
-        print(detections.get_field("labels"))
-        print(detections.bbox)
+        print(detections)
+        print(detections[0].bbox)
+        print(detections[0].get_field("labels"))
         if self.training:
             losses = {}
             losses.update(detector_losses)
@@ -117,6 +118,7 @@ class EfficientDet(nn.Module):
                 else:
                     x, detections, mask_losses = self.mask(features, proposals, targets)
             print("-----------------------detections 3---------------------------------")
-            print(detections.get_field("labels"))
-            print(detections.bbox)
+            print(detections)
+            print(detections[0].bbox)
+            print(detections[0].get_field("labels"))
             return detections
