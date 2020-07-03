@@ -348,7 +348,6 @@ def to_bbox_detection(images, detections, fpn_post_nms_top_n=100):
                 "labels", torch.LongTensor([1]).to('cuda'))
             empty_boxlist.add_field(
                 "scores", torch.Tensor([0.01]).to('cuda'))
-            print(empty_boxlist)
             boxes.append(empty_boxlist)
 
     # print("---------------boxes (top 100 after nms) --------------")
