@@ -338,15 +338,13 @@ def to_bbox_detection(images, detections, fpn_post_nms_top_n=100):
                     cls_scores.cpu(),
                     number_of_detections - fpn_post_nms_top_n + 1
                 )
-                print("-------------image_thresh--------------------")
-                print(image_thresh)
                 keep = cls_scores >= image_thresh.item()
                 keep = torch.nonzero(keep).squeeze(1)
+                print("-------------image_thresh--------------------")
+                print(image_thresh, len(keep))
                 boxlist = boxlist[keep]
-                print("-------------------filtered boxlist----------------------------")
+                print("-------------------new boxlist----------------------------")
                 print(boxlist)
-                a = 1
-                b = a+1
             boxes.append(boxlist)
         else:
             empty_boxlist = BoxList(torch.zeros(1, 4).to('cuda'), boxlist.size)
