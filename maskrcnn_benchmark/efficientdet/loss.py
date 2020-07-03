@@ -100,7 +100,7 @@ class FocalLoss(nn.Module):
             positive_indices = torch.ge(IoU_max, 0.5)
 
             num_positive_anchors = positive_indices.sum()
-            print(num_positive_anchors.item())
+            #print(num_positive_anchors.item())
 
             assigned_annotations = bbox_annotation[IoU_argmax, :]
 
