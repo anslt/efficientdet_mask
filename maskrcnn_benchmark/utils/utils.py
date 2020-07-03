@@ -316,7 +316,10 @@ def to_bbox_detection(images, detections, fpn_post_nms_top_n=100):
             applying box decoding and NMS
     """
     boxes = []
+
     for i, detection in enumerate(detections):
+
+        image_width, image_height = images.image_sizes[i]
 
         rois = detection['rois']
         number_of_detections = len(rois)
@@ -326,7 +329,6 @@ def to_bbox_detection(images, detections, fpn_post_nms_top_n=100):
             labels = detection['class_ids']
             scores = detection['scores']
 
-            image_width, image_height = images.image_sizes[i]
             boxlist = BoxList(torch.Tensor(rois).to("cuda"), (image_width, image_height))
             boxlist.add_field("labels", torch.Tensor(labels).type(torch.LongTensor).to("cuda"))
             boxlist.add_field("scores", torch.Tensor(scores).to("cuda"))
@@ -341,7 +343,7 @@ def to_bbox_detection(images, detections, fpn_post_nms_top_n=100):
                 boxlist = boxlist[keep]
             boxes.append(boxlist)
         else:
-            empty_boxlist = BoxList(torch.zeros(1, 4).to('cuda'), boxlist.size)
+            empty_boxlist = BoxList(torch.zeros(1, 4).to('cuda'), (image_width, image_height))
             empty_boxlist.add_field(
                 "labels", torch.LongTensor([1]).to('cuda'))
             empty_boxlist.add_field(
