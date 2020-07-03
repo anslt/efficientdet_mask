@@ -207,7 +207,7 @@ class RetinaNetModule(torch.nn.Module):
         #     box_cls, box_regression, anchors, targets, imgs=images.tensors, obj_list=COCO_CLASSES
         # )
         loss_box_cls, loss_box_reg = self.criterion(
-            box_cls, box_regression, anchors, targets, imgs=images, obj_list=COCO_CLASSES
+            box_cls, box_regression, anchors, targets, imgs=images.tensors, obj_list=COCO_CLASSES
         )
         # loss_box_cls, loss_box_reg = self.loss_evaluator(
         #     anchors, box_cls, box_regression, targets
