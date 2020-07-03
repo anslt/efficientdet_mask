@@ -195,6 +195,7 @@ class RetinaNetPostProcessor(torch.nn.Module):
                     result = result[keep]
                 results.append(result)
             else:
+                # TODO: What's the purpose of these empty boxlist???
                 empty_boxlist = BoxList(torch.zeros(1, 4).to('cuda'), boxlist.size)
                 empty_boxlist.add_field(
                     "labels", torch.LongTensor([1]).to('cuda'))

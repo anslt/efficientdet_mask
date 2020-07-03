@@ -64,6 +64,7 @@ class EfficientDet(nn.Module):
         if self.cfg.RETINANET.BACKBONE == "p2p7":
             rpn_features = features[1:]
         (anchors, detections), detector_losses = self.rpn(images, rpn_features, np_targets)
+
         if self.training:
             losses = {}
             losses.update(detector_losses)

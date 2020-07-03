@@ -7,7 +7,7 @@ import os
 from collections import OrderedDict
 
 import torch
-
+import numpy as np
 from tqdm import tqdm
 
 from ..structures.bounding_box import BoxList
@@ -54,6 +54,8 @@ def prepare_for_coco_detection(predictions, dataset):
         scores = prediction.get_field("scores").tolist()
         labels = prediction.get_field("labels").tolist()
 
+        # TODO: KeyError: 0
+        labels = list(np.asarray(labels) + 1)
         mapped_labels = [dataset.contiguous_category_id_to_json_id[i] for i in labels]
 
         coco_results.extend(

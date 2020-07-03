@@ -12,7 +12,7 @@ from ..backbone.efficientdet import Regressor, Classifier
 from maskrcnn_benchmark.efficientdet.utils import Anchors, BBoxTransform, ClipBoxes
 from maskrcnn_benchmark.efficientdet.config import COCO_CLASSES
 from maskrcnn_benchmark.efficientdet.loss import FocalLoss
-from maskrcnn_benchmark.utils.utils import postprocess
+from maskrcnn_benchmark.utils.utils import postprocess, to_bbox_detection
 import logging
 
 
@@ -115,26 +115,24 @@ class RetinaNetModule(torch.nn.Module):
         self.logger = logging.getLogger("maskrcnn_benchmark.trainer")
         self.cfg = cfg.clone()
 
-        # TODO: to be commented out
-        anchor_generator = make_anchor_generator_retinanet(cfg)
-        head = RetinaNetHead(cfg, anchor_generator.num_anchors_per_location()[0])
-
+        # old code from retinanet
+        # anchor_generator = make_anchor_generator_retinanet(cfg)
+        # head = RetinaNetHead(cfg, anchor_generator.num_anchors_per_location()[0])
         #box_coder = BoxCoder(weights=(10., 10., 5., 5.))
-        box_coder = BoxCoder(weights=(1., 1., 1.,1.))
+        # box_coder = BoxCoder(weights=(1., 1., 1.,1.))
+        #
+        # if self.cfg.MODEL.SPARSE_MASK_ON:
+        #     box_selector_test = make_retinanet_detail_postprocessor(
+        #         cfg, 100, box_coder)
+        # else:
+        #     box_selector_test = make_retinanet_postprocessor(
+        #         cfg, 100, box_coder)
+        # box_selector_train = None
+        # if self.cfg.MODEL.MASK_ON or self.cfg.MODEL.SPARSE_MASK_ON:
+        #     box_selector_train = make_retinanet_postprocessor(
+        #         cfg, 100, box_coder)
 
-        if self.cfg.MODEL.SPARSE_MASK_ON:
-            box_selector_test = make_retinanet_detail_postprocessor(
-                cfg, 100, box_coder)
-        else:
-            box_selector_test = make_retinanet_postprocessor(
-                cfg, 100, box_coder)
-        box_selector_train = None
-        if self.cfg.MODEL.MASK_ON or self.cfg.MODEL.SPARSE_MASK_ON:
-            box_selector_train = make_retinanet_postprocessor(
-                cfg, 100, box_coder)
-
-        # TODO: to be commented out
-        loss_evaluator = make_retinanet_loss_evaluator(cfg, box_coder)
+        # loss_evaluator = make_retinanet_loss_evaluator(cfg, box_coder)
 
         self.compound_coef = cfg.EFFICIENTNET.COEF
         self.fpn_num_filters = [64, 88, 112, 160, 224, 288, 384, 384]
@@ -143,13 +141,17 @@ class RetinaNetModule(torch.nn.Module):
         self.anchor_scale = [4., 4., 4., 4., 4., 4., 4., 5.]
         self.aspect_ratios = [(1.0, 1.0), (1.4, 0.7), (0.7, 1.4)]
         self.num_scales = len([2 ** 0, 2 ** (1.0 / 3.0), 2 ** (2.0 / 3.0)])
+        self.pre_nms_thresh = 0.05
+        self.nms_thresh = 0.4 #TODO: default 0.5 in yet-another, subject to change
 
         num_anchors = len(self.aspect_ratios) * self.num_scales
         num_classes = cfg.RETINANET.NUM_CLASSES - 1
 
-        # TODO: to be commented out
-        self.anchor_generator = anchor_generator
-        self.head = head
+        # self.anchor_generator = anchor_generator
+        # self.loss_evaluator = loss_evaluator
+        # self.head = head
+        # self.box_selector_test = box_selector_test
+        # self.box_selector_train = box_selector_train
 
         self.regressor = Regressor(in_channels=self.fpn_num_filters[self.compound_coef],
                                    num_anchors=num_anchors,
@@ -158,10 +160,7 @@ class RetinaNetModule(torch.nn.Module):
                                      num_anchors=num_anchors, num_classes=num_classes,
                                      num_layers=self.box_class_repeats[self.compound_coef])
         self.anchors = Anchors(anchor_scale=self.anchor_scale[self.compound_coef])
-        self.box_selector_test = box_selector_test
-        self.box_selector_train = box_selector_train
-        self.loss_evaluator = loss_evaluator
-        # TODO: use loss evaluator from Yet-Another
+
         self.criterion = FocalLoss()
 
     def forward(self, images, features, targets=None):
@@ -179,7 +178,6 @@ class RetinaNetModule(torch.nn.Module):
             losses (dict[Tensor]): the losses for the model during training. During
                 testing, it is an empty dict.
         """
-        # TODO： convert between format
         # print("--------------FROM YET ANOTHER---------------")
         box_regression = self.regressor(features)
         box_cls = self.classifier(features) #  torch.cat(list of feature maps, dim=1)
@@ -199,19 +197,17 @@ class RetinaNetModule(torch.nn.Module):
 
         if self.training:
             # return self._forward_train(anchors, box_cls, box_regression, targets)
-            return self._forward_train(anchors, box_cls, box_regression, targets, images.tensors)
+            return self._forward_train(anchors, box_cls, box_regression, targets, images, features)
         else:
-            return self._forward_test(anchors, box_cls, box_regression)
+            return self._forward_test(anchors, box_cls, box_regression, images)
 
-    def _forward_train(self, anchors, box_cls, box_regression, targets, images):
-        # TODO: change the loss to Yet-Another-EfficientDet if necessay
-        # TODO: convert format: targets to annotations
+    def _forward_train(self, anchors, box_cls, box_regression, targets, images, features):
         # (xyxy, label)
         # loss_box_cls, loss_box_reg = self.criterion(
-        #     box_cls, box_regression, anchors, annotations, imgs=imgs, obj_list=obj_list
+        #     box_cls, box_regression, anchors, targets, imgs=images.tensors, obj_list=COCO_CLASSES
         # )
         loss_box_cls, loss_box_reg = self.criterion(
-            box_cls, box_regression, anchors, targets, imgs=images, obj_list=COCO_CLASSES
+            box_cls, box_regression, anchors, targets, imgs=images.tensors, obj_list=COCO_CLASSES
         )
         # loss_box_cls, loss_box_reg = self.loss_evaluator(
         #     anchors, box_cls, box_regression, targets
@@ -225,15 +221,25 @@ class RetinaNetModule(torch.nn.Module):
         detections = None
         if self.cfg.MODEL.MASK_ON or self.cfg.MODEL.SPARSE_MASK_ON:
             with torch.no_grad():
-                detections = self.box_selector_train(
-                    anchors, box_cls, box_regression
-                )
-                # boxlists (list[BoxList]): the post-processed anchors, after
-                # applying box decoding and NMS
+                # detections = self.box_selector_train(
+                #     anchors, box_cls, box_regression
+                # )
+                regressBoxes = BBoxTransform()
+                clipBoxes = ClipBoxes()
+                out = postprocess(images.tensors, anchors, box_regression, box_cls, regressBoxes, clipBoxes,
+                                  self.pre_nms_thresh, self.nms_thresh)
+                detections = to_bbox_detection(images, out, fpn_post_nms_top_n=100)
         return (anchors, detections), losses
 
-    def _forward_test(self, anchors, box_cls, box_regression):
-        boxes = self.box_selector_test(anchors, box_cls, box_regression)
+    def _forward_test(self, anchors, box_cls, box_regression, images):
+        # boxes = self.box_selector_test(anchors, box_cls, box_regression)
+        regressBoxes = BBoxTransform()
+        clipBoxes = ClipBoxes()
+        out = postprocess(images.tensors, anchors, box_regression, box_cls, regressBoxes, clipBoxes,
+                          self.pre_nms_thresh, self.nms_thresh)
+        boxes = to_bbox_detection(images, out, fpn_post_nms_top_n=100)
+        #TODO: currently the limit for pre_nms_top_n is not set
+        #TODO: retinamask does nms per class(label) but Yet-Anotehr does nms all togehter
         '''
         if self.cfg.MODEL.RPN_ONLY:
             # For end-to-end models, the RPN proposals are an intermediate state

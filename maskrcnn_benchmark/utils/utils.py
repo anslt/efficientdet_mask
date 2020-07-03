@@ -12,7 +12,10 @@ from torchvision.ops.boxes import batched_nms
 from typing import Union
 import uuid
 
+from maskrcnn_benchmark.structures.bounding_box import BoxList
 from .sync_batchnorm import SynchronizedBatchNorm2d
+from maskrcnn_benchmark.structures.boxlist_ops import cat_boxlist
+from maskrcnn_benchmark.structures.boxlist_ops import boxlist_nms
 
 from torch.nn.init import _calculate_fan_in_and_fan_out, _no_grad_normal_
 import math
@@ -298,3 +301,58 @@ def plot_one_box(img, coord, label=None, score=None, color=None, line_thickness=
         c2 = c1[0] + t_size[0]+s_size[0]+15, c1[1] - t_size[1] -3
         cv2.rectangle(img, c1, c2 , color, -1)  # filled
         cv2.putText(img, '{}: {:.0%}'.format(label, score), (c1[0],c1[1] - 2), 0, float(tl) / 3, [0, 0, 0], thickness=tf, lineType=cv2.FONT_HERSHEY_SIMPLEX)
+
+
+def to_bbox_detection(images, detections, fpn_post_nms_top_n=100):
+    """
+    Arguments:
+        detections: [{'rois': array([[333.90854, 239.91882, 424.3854 , 287.47577],..
+        ,[103.98116   , 197.5421    , 129.49635, 237.02315]],
+        dtype=float32), 'class_ids': array([2,.., 0]),
+        'scores': array([0.84606266, ..., 0.20120995], dtype=float32)}]
+
+    Returns:
+        boxlists (list[BoxList]): the post-processed anchors, after
+            applying box decoding and NMS
+    """
+    boxes = []
+    for i, detection in enumerate(detections):
+        rois = detection['rois']
+        labels = detection['class_ids']
+        scores = detection['scores']
+        image_width, image_height = images.image_sizes[i]
+        boxlist = BoxList(torch.Tensor(rois).to("cuda"), (image_width, image_height))
+        boxlist.add_field("labels", torch.Tensor(labels).type(torch.LongTensor).to("cuda"))
+        boxlist.add_field("scores", torch.Tensor(scores).to("cuda"))
+
+        number_of_detections = len(rois)
+        # Limit to max_per_image detections **over all classes**
+
+        if number_of_detections > 0:
+            if number_of_detections > fpn_post_nms_top_n:
+                cls_scores = boxlist.get_field("scores")
+                image_thresh, _ = torch.kthvalue(
+                    cls_scores.cpu(),
+                    number_of_detections - fpn_post_nms_top_n + 1
+                )
+                keep = cls_scores >= image_thresh.item()
+                keep = torch.nonzero(keep).squeeze(1)
+                boxlist = boxlist[keep]
+            boxes.append(boxlist)
+        else:
+            empty_boxlist = BoxList(torch.zeros(1, 4).to('cuda'), boxlist.size)
+            empty_boxlist.add_field(
+                "labels", torch.LongTensor([1]).to('cuda'))
+            empty_boxlist.add_field(
+                "scores", torch.Tensor([0.01]).to('cuda'))
+            boxes.append(boxlist)
+
+    # print("---------------boxes (top 100 after nms) --------------")
+    # print(boxes)
+    # print(boxes[0].fields())
+    # print(boxes[0].get_field("labels"))
+    # print(boxes[0].get_field("scores"))
+
+    return boxes
+
+
