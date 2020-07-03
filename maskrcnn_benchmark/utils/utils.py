@@ -317,22 +317,19 @@ def to_bbox_detection(images, detections, fpn_post_nms_top_n=100):
     """
     boxes = []
     for i, detection in enumerate(detections):
-        print('detections')
-        print(detection)
-        rois = detection['rois']
-        labels = detection['class_ids']
-        scores = detection['scores']
-        print('rois')
-        print(rois)
-        image_width, image_height = images.image_sizes[i]
-        boxlist = BoxList(torch.Tensor(rois).to("cuda"), (image_width, image_height))
-        boxlist.add_field("labels", torch.Tensor(labels).type(torch.LongTensor).to("cuda"))
-        boxlist.add_field("scores", torch.Tensor(scores).to("cuda"))
 
+        rois = detection['rois']
         number_of_detections = len(rois)
-        # Limit to max_per_image detections **over all classes**
 
         if number_of_detections > 0:
+
+            labels = detection['class_ids']
+            scores = detection['scores']
+
+            image_width, image_height = images.image_sizes[i]
+            boxlist = BoxList(torch.Tensor(rois).to("cuda"), (image_width, image_height))
+            boxlist.add_field("labels", torch.Tensor(labels).type(torch.LongTensor).to("cuda"))
+            boxlist.add_field("scores", torch.Tensor(scores).to("cuda"))
             if number_of_detections > fpn_post_nms_top_n:
                 cls_scores = boxlist.get_field("scores")
                 image_thresh, _ = torch.kthvalue(
@@ -349,7 +346,8 @@ def to_bbox_detection(images, detections, fpn_post_nms_top_n=100):
                 "labels", torch.LongTensor([1]).to('cuda'))
             empty_boxlist.add_field(
                 "scores", torch.Tensor([0.01]).to('cuda'))
-            boxes.append(boxlist)
+            print(empty_boxlist)
+            boxes.append(empty_boxlist)
 
     # print("---------------boxes (top 100 after nms) --------------")
     # print(boxes)
