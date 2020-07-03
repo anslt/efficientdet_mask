@@ -317,9 +317,13 @@ def to_bbox_detection(images, detections, fpn_post_nms_top_n=100):
     """
     boxes = []
     for i, detection in enumerate(detections):
+        print('detections')
+        print(detection)
         rois = detection['rois']
         labels = detection['class_ids']
         scores = detection['scores']
+        print('rois')
+        print(rois)
         image_width, image_height = images.image_sizes[i]
         boxlist = BoxList(torch.Tensor(rois).to("cuda"), (image_width, image_height))
         boxlist.add_field("labels", torch.Tensor(labels).type(torch.LongTensor).to("cuda"))

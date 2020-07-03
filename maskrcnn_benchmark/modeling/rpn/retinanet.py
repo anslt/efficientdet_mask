@@ -237,6 +237,7 @@ class RetinaNetModule(torch.nn.Module):
         clipBoxes = ClipBoxes()
         out = postprocess(images.tensors, anchors, box_regression, box_cls, regressBoxes, clipBoxes,
                           self.pre_nms_thresh, self.nms_thresh)
+        print(out)
         boxes = to_bbox_detection(images, out, fpn_post_nms_top_n=100)
         #TODO: currently the limit for pre_nms_top_n is not set
         #TODO: retinamask does nms per class(label) but Yet-Anotehr does nms all togehter
@@ -251,6 +252,7 @@ class RetinaNetModule(torch.nn.Module):
             ]
             boxes = [box[ind] for box, ind in zip(boxes, inds)]
         '''
+
         return (anchors, boxes), {}
 
 
