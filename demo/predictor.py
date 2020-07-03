@@ -169,6 +169,8 @@ class COCODemo(object):
                 the BoxList via `prediction.fields()`
         """
         predictions = self.compute_prediction(image)
+        print("-------------------print predictions------------------------")
+        print(predictions)
         top_predictions = self.select_top_predictions(predictions)
 
         result = image.copy()
@@ -204,9 +206,6 @@ class COCODemo(object):
 
         # always single image is passed at a time
         prediction = predictions[0]
-
-        print("------------------prediction---------------")
-        print(prediction)
 
         # reshape prediction (a BoxList) into the original image size
         height, width = original_image.shape[:-1]
@@ -258,21 +257,12 @@ class COCODemo(object):
             predictions (BoxList): the result of the computation by the model.
                 It should contain the field `labels`.
         """
-        print("-----------------overlay_boxes--------------------")
         labels = predictions.get_field("labels")
         boxes = predictions.bbox
-        print("------------------labels-----------------------")
-        print(labels)
-        print("------------------boxes-----------------------")
-        print(boxes)
         colors = self.compute_colors_for_labels(labels).tolist()
         for box, color in zip(boxes, colors):
             box = box.to(torch.int64)
             top_left, bottom_right = box[:2].tolist(), box[2:].tolist()
-            print("------------------top_left-----------------------")
-            print(top_left)
-            print("------------------top_left-----------------------")
-            print(bottom_right)
             image = cv2.rectangle(
                 image, tuple(top_left), tuple(bottom_right), tuple(color), 1
             )
