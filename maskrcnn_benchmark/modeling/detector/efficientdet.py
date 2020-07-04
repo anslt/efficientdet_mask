@@ -61,6 +61,7 @@ class EfficientDet(nn.Module):
 
         print("-------------------------")
         print(targets)
+        print(targets[0].fields())
         print("-------------------------")
         print(np_targets)
         print("-------------------------")
