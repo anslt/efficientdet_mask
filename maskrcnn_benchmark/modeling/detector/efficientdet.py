@@ -59,6 +59,12 @@ class EfficientDet(nn.Module):
         else:
             np_targets = []
 
+        print("-------------------------")
+        print(targets)
+        print("-------------------------")
+        print(np_targets)
+        print("-------------------------")
+
         #Retina RPN Output
         rpn_features = features
         if self.cfg.RETINANET.BACKBONE == "p2p7":
