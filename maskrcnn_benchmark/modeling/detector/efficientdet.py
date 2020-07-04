@@ -62,6 +62,8 @@ class EfficientDet(nn.Module):
         print("-------------------------")
         print(targets)
         print(targets[0].fields())
+        print(targets[0].get_file("labels"))
+        print(targets[0].get_file("masks"))
         print("-------------------------")
         print(np_targets)
         print("-------------------------")
